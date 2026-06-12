@@ -13,16 +13,28 @@ A themeable design system (Figma + code) for Dmytro's own projects and customer 
 3. **Component-level tokens.** Every component is themeable independently of global tokens, and tinted semi-transparent backgrounds are *derived* from foreground tokens instead of being authored as separate styles.
 4. **Flat variant naming.** `accent`, `accent-subtle`, `neutral` — no `primary/secondary` hierarchies. Typography is `text-{size}-{lineHeight}-{weight}` (`text-16-20-regular`), so `17-21-extrabold` slots in without conflicts.
 
-## Decisions (agreed during brainstorming)
+## Decision log (short form)
 
-| Decision | Choice |
-|---|---|
-| Deliverable shape | Themeable npm package set, one core + per-customer theme files |
-| Source of truth | Code-first; Figma receives generated, resolved values |
-| Styling delivery | CSS custom properties + CSS Modules; zero runtime deps |
-| v1 scope | Token foundations + 8 core components + Storybook |
-| Browser floor | Evergreen only (Baseline 2024+: Chrome/Edge 119+, Safari 16.4+, Firefox 128+) |
-| Token authoring | TypeScript formula DSL → codegen (approach A) |
+| # | Decision | Choice | Why |
+|---|---|---|---|
+| 1 | Deliverable shape | Themeable npm package set | Fixes propagate to every consumer; a customer is a theme file, not a fork |
+| 2 | Source of truth | Code-first; Figma receives generated values | Figma variables can't hold OKLCH formulas — only resolved statics |
+| 3 | Styling delivery | CSS custom properties + CSS Modules | Zero runtime deps, no framework lock-in |
+| 4 | v1 scope | Foundations + 8 components + Storybook | Proves every architectural idea without drowning in component work |
+| 5 | Browser floor | Evergreen only (Chrome/Edge 119+, Safari 16.4+, Firefox 128+) | Live relative-color syntax has a hard floor; no fallback machinery |
+| 6 | Token authoring | TS formula DSL → codegen (approach A) | Formulas as data: one resolver feeds CSS, Figma, docs, and tests — no drift |
+| 7 | Token layering | 3 tiers: primitive → semantic → component | Industry-standard structure (≈ Material reference/system/component) |
+| 8 | Intra-layer references | Allowed, cycle-checked by codegen | Enables fg-derived tints and self-derived hover states (principle 3) |
+| 9 | Palette → theme indirection | Slot mapping `{ink, canvas, accent, …}` | Customer brands keep their own color names; formulas never change |
+| 10 | Figma sync mechanism | In-repo Figma plugin; MCP for bootstrap only | Works on any Figma plan (REST write is Enterprise-only); no AI-session dependency in the team workflow |
+| 11 | Token definition home | All tiers live in `@dku/tokens` | React consumes generated artifacts only; Figma sync is complete from one source |
+| 12 | Emitted CSS structure | Cascade layers `ds.base → ds.theme → ds.components → ds.utilities` | Consumer overrides win predictably |
+| 13 | Scale naming | Pixel-true names, rem values | `ds-gap-8` = visual 8px; `size={32}`; new entries are additive forever |
+| 14 | Variant naming | Flat: `accent / neutral / danger` + `-subtle` / `ghost` | No primary/secondary hierarchy (principle 4) |
+| 15 | Select (v1) | Styled native `<select>` | Bulletproof a11y now; custom listbox is v2 |
+| 16 | Tooltip | Native popover API + tiny positioning util | Zero dependencies |
+| 17 | Quality gate | Contrast matrix fails the build, per theme | "Brand colors in, guaranteed-accessible UI out" |
+| 18 | Two-way Figma sync | Non-goal | Code is the single source of truth; Figma is a projection |
 
 ## Non-goals (v1)
 
@@ -137,6 +149,34 @@ this small until a real token needs more — YAGNI.
 - Themes nest (subtree theming works — it's all custom-property scope).
 - A consumer that forgets a theme import degrades to light defaults, never to
   unstyled output.
+
+### Terminology mapping (token tiers vs. atomic design)
+
+Our layers are the industry-standard *token tier* model — adjacent to, but
+distinct from, atomic design. Atomic design organizes **components**
+(atoms → molecules → organisms → templates → pages); tokens sit *below* its
+atoms ("subatomic" in Brad Frost's own framing). Customer-facing vocabulary:
+
+| Our spec | Token-tier vocabulary | Material 3 | Atomic design |
+|---|---|---|---|
+| Layer 0 — palette + slots | Tier 1: primitive/global | Reference tokens | subatomic |
+| Layer 1 — semantic theme | Tier 2: semantic/alias | System tokens | subatomic |
+| Layer 2 — component tokens | Tier 3: component | Component tokens | subatomic |
+| The 8 components | — | — | atoms |
+| Compositions in consumer apps | — | — | molecules/organisms/pages |
+
+Two deliberate deviations from the textbook tier model:
+
+1. **Tier 1 cardinality.** Classic Tier 1 is a static ladder (`blue-50…900`) —
+   exactly what principle 1 rejects. Layer 0 is ~6 anchors + slot map because
+   Tier 2 is *computed* by formulas, not picked from a ladder.
+2. **Intra-layer references.** Textbook tiers reference only the tier above.
+   We allow same-layer derivation (`fg-secondary` ← `fg-primary`,
+   `fill-tint-accent` ← `fg-accent`, button hover ← button bg); the codegen's
+   cycle-checker provides the safety the classic model got from rigidity.
+
+v1 deliberately stops at atoms: no molecules/organisms ship in the package —
+compositions belong to consuming apps, keeping this a system, not a UI kit.
 
 ## Codegen pipeline
 
