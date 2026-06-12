@@ -1,0 +1,276 @@
+# DS — next-generation design system: design spec
+
+- **Date:** 2026-06-12
+- **Status:** awaiting user review
+- **Owner:** Dmytro Kurkin
+
+## Context
+
+A themeable design system (Figma + code) for Dmytro's own projects and customer work, built on four principles:
+
+1. **OKLCH calculations, not swatch ladders.** Semantic colors are formulas over a small set of brand anchors (`oklch(from var(--ds-palette-x) calc(…) …)`), not hand-picked `red-50…red-900` scales.
+2. **Pixel-true scale names.** `ds-gap-8` means visual 8px (0.5rem). Component sizes are numbers (`Button size={32}`), never S/M/L, so new sizes are additive and never break the naming.
+3. **Component-level tokens.** Every component is themeable independently of global tokens, and tinted semi-transparent backgrounds are *derived* from foreground tokens instead of being authored as separate styles.
+4. **Flat variant naming.** `accent`, `accent-subtle`, `neutral` — no `primary/secondary` hierarchies. Typography is `text-{size}-{lineHeight}-{weight}` (`text-16-20-regular`), so `17-21-extrabold` slots in without conflicts.
+
+## Decisions (agreed during brainstorming)
+
+| Decision | Choice |
+|---|---|
+| Deliverable shape | Themeable npm package set, one core + per-customer theme files |
+| Source of truth | Code-first; Figma receives generated, resolved values |
+| Styling delivery | CSS custom properties + CSS Modules; zero runtime deps |
+| v1 scope | Token foundations + 8 core components + Storybook |
+| Browser floor | Evergreen only (Baseline 2024+: Chrome/Edge 119+, Safari 16.4+, Firefox 128+) |
+| Token authoring | TypeScript formula DSL → codegen (approach A) |
+
+## Non-goals (v1)
+
+- Two-way Figma sync (code is the single source of truth; Figma is a projection)
+- Legacy browser fallback builds
+- Tailwind integration of any kind
+- Visual regression testing (v2 candidate: Playwright screenshots or Chromatic)
+- Custom-listbox Select (v1 ships a styled native `<select>`; custom listbox is v2)
+- Public open-sourcing decisions (package registry can stay private initially)
+
+## Architecture
+
+pnpm-workspace monorepo `ds/`:
+
+```
+packages/tokens       @dku/tokens   — formula DSL, ALL token definitions (palette,
+                                      themes, scales, component tokens), codegen,
+                                      emitted CSS + resolved JSON + TS types
+packages/react        @dku/react    — 8 components, CSS Modules, peer React 19;
+                                      consumes ONLY generated artifacts from @dku/tokens
+packages/figma-plugin private       — in-repo Figma plugin that upserts variables
+                                      from resolved JSON (works on any Figma plan)
+apps/storybook        not published — docs, generated token tables, workbench
+```
+
+- CSS prefix: `--ds-`; class prefix `ds-`. npm scope: `@dku`.
+- Two published packages so CSS-only consumers (e.g. the portfolio) can use
+  `@dku/tokens` without React.
+- Versioning: changesets, semver. Consuming repos install from the registry;
+  during development, `pnpm pack`/file deps.
+
+## Token model
+
+### Layer 0 — palette (per brand)
+
+Brand-named OKLCH anchors with no semantics: `obsidian`, `platinum`, `sapphire`,
+`ruby`, `amber`, `emerald` (default brand). Plus static `white`/`black`.
+
+A **slot mapping** binds palette entries to the six roles every theme formula
+references: `{ ink, canvas, accent, success, warning, danger }`. Formulas never
+reference palette names directly — only slots. A customer brand supplies its own
+palette (own names) plus a slot map, and every downstream formula works unchanged.
+
+### Layer 1 — semantic theme tokens (per theme)
+
+Same token names in every theme; different formulas per theme. Light is the
+reference implementation; dark redefines formulas (e.g. `fg-primary` derives from
+`canvas` instead of `ink`).
+
+| Group | Tokens | Formula sketch |
+|---|---|---|
+| bg | `bg-primary`, `bg-secondary` | canvas refs |
+| fg | `fg-primary` | from ink: L 30%, C 0.03 |
+| | `fg-secondary/tertiary/quaternary` | fg-primary at alpha 0.7 / 0.5 / 0.3 |
+| | `fg-primary-inverted`, `fg-static-white` | canvas ref / white |
+| | `fg-accent/success/warning/danger` | from slot: L 65%, C min(c, 0.23) |
+| fill | `fill-neutral-1…6` | canvas with progressive ΔL (±0.016…0.068) |
+| | `fill-accent` (+ status fills) | slot refs |
+| | `fill-tint-accent/success/warning/danger` | **from the matching fg token, alpha 0.12** |
+| border | `border-neutral`, `border-strong`, `border-focus` | fg-primary alphas / accent |
+
+The `fill-tint-*` group is principle 3: tinted backgrounds derived from
+foregrounds, never authored separately.
+
+### Layer 2 — component tokens
+
+Each component declares its own custom properties, defaulting to semantic tokens:
+
+```css
+.button {
+  --ds-button-accent-bg: var(--ds-fill-accent);
+  --ds-button-accent-bg-hover: oklch(from var(--ds-button-accent-bg) calc(l - 0.04) c h);
+}
+```
+
+Interactive states derive from the component's *own* token, so overriding one
+background retunes its hover/active automatically. Component tokens are
+overridable at any scope (page, section, one-off element) without touching
+global tokens.
+
+### Formula DSL (authoring format)
+
+One typed shape covers every formula above:
+
+```ts
+// packages/tokens/src/themes/light.ts
+fgAccent:       token({ from: slot.accent,  l: set(0.65), c: max(0.23) }),
+fgSecondary:    token({ from: ref.fgPrimary, alpha: 0.7 }),
+fillNeutral3:   token({ from: slot.canvas,  l: delta(-0.017), c: delta(+0.001) }),
+fillTintAccent: token({ from: ref.fgAccent, alpha: 0.12 }),
+```
+
+Channel operations: `set(v)`, `delta(±v)`, `max(v)` (clamp), `alpha`. Sources:
+`slot.*` (palette roles) or `ref.*` (other tokens, cycle-checked). The DSL stays
+this small until a real token needs more — YAGNI.
+
+### Scales — pixel-true names, rem values
+
+- **Spacing** `--ds-space-{px}`: 0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80
+- **Control heights** `--ds-size-{px}`: 24, 32, 40, 48
+- **Radius** `--ds-radius-{px}`: 4, 6, 8, 12, `full`
+- **Typography**: explicit combo list → `--ds-text-16-20-regular` etc.; families
+  `--ds-font-sans`, `--ds-font-mono`. Adding a combo (e.g. `17-21-extrabold`) is
+  appending one list entry.
+- **Utilities** (generated, minimal): `ds-gap-*`, `ds-p-*`/`ds-px-*`/`ds-py-*`,
+  `ds-m-*`/`ds-mx-*`/`ds-my-*`, `ds-text-*`. Nothing hand-written.
+
+### Theme application
+
+- Light tokens on `:root` AND `[data-ds-theme="light"]`; other themes scoped to
+  `[data-ds-theme="{name}"]`.
+- Themes nest (subtree theming works — it's all custom-property scope).
+- A consumer that forgets a theme import degrades to light defaults, never to
+  unstyled output.
+
+## Codegen pipeline
+
+`packages/tokens/scripts/build.ts`, run with tsx; `--watch` for dev.
+
+1. **Load** typed palette/theme/scale/component-token modules.
+2. **Validate**: unknown slot, unknown ref, circular ref, duplicate name, type
+   errors → build fails with the exact token path (`themes/light.fgAccent`).
+3. **Resolve** every formula per theme with culori →
+   `dist/resolved/{theme}.json`: `{ name, oklch: {l,c,h,alpha}, hex, formula }`
+   where `formula` is the human-readable "Reference → Mod" string for docs/Figma
+   descriptions.
+4. **Emit CSS** into cascade layers `@layer ds.base, ds.theme, ds.components, ds.utilities`:
+   - `base.css` — palette vars, scales, fonts (ds.base)
+   - `{theme}.css` — semantic tokens in **live relative-color form** (ds.theme)
+   - `components/{name}.vars.css` — component token blocks (ds.components)
+   - `utilities.css` — generated utility classes (ds.utilities)
+5. **Emit types** — token-name unions, `ThemeConfig`, size/variant literal types
+   consumed by `@dku/react` props.
+
+Key property: the live CSS keeps the `oklch(from var(…) calc(…))` form (runtime
+palette swap continues to cascade), while resolved JSON carries the identical
+math as static values for Figma, docs, and tests. Both come from one resolver —
+they cannot drift.
+
+Root `pnpm dev` = tokens watch + Storybook.
+
+## Figma sync
+
+- **Durable artifact: `packages/figma-plugin`** — a small private Figma plugin
+  (vanilla TS, plugin API). Paste/load `dist/resolved/*.json` → it upserts a
+  "DS Tokens" variable collection: one mode per theme; color variables grouped
+  `bg/fg/fill/border`; number variables for space/size/radius; text styles for
+  typography combos; token formula strings written into variable descriptions.
+- **Idempotent**: upsert by name; reports created/updated/orphaned; never
+  deletes silently. Dry-run mode lists the diff.
+- Works on any Figma plan (REST Variables write API would require Enterprise —
+  explicitly avoided as a dependency).
+- The Figma MCP available in Claude sessions may be used to bootstrap the
+  library file during development, but no recurring workflow depends on an AI
+  session.
+- Components in Figma are drawn by hand (designer-controlled) but bound to
+  synced variables: palette change in code → build → plugin sync → the whole
+  Figma library recolors.
+- Future (out of scope v1): Tokens Studio–compatible export from resolved JSON.
+
+## Components (`@dku/react`)
+
+Per-component folder: `Button.tsx`, `button.module.css`, `Button.stories.tsx`,
+`Button.test.tsx` (token definitions live in `@dku/tokens/src/components/button.ts`).
+
+Conventions:
+
+- `variant`: `accent | accent-subtle | neutral | neutral-subtle | ghost | danger | danger-subtle`
+  (subset per component; e.g. Tag ships `neutral | accent | success | warning | danger`,
+  each with a `-subtle` form whose background derives from the matching fg token).
+- `size`: `24 | 32 | 40 | 48` number literal type. Numbers are the contract —
+  additive forever.
+- Module CSS may reference **only that component's `--ds-{component}-*` tokens**;
+  a stylelint rule enforces it. Binding to semantic tokens happens only in the
+  token definition file.
+- React 19: `ref` as a normal prop; no forwardRef. Zero runtime deps. SSR-safe.
+- A11y choices: Select = styled native `<select>`; Tooltip = native popover API
+  + small positioning util (no Floating UI); Checkbox/Switch = real inputs with
+  visually-custom rendering; all interactive components keyboard-complete and
+  labeled in stories.
+
+The 8: **Button, IconButton, Input, Select, Checkbox, Switch, Tag/Badge, Tooltip**,
+plus ~16 tree-shakable icon components (`currentColor`).
+
+## Storybook & docs (`apps/storybook`)
+
+- Storybook 9 + Vite.
+- **Generated token pages** read `dist/resolved/*.json`: swatch, name, formula
+  ("Reference → Mod"), resolved hex — per theme. Docs cannot go stale.
+- Theme-switcher toolbar (light/dark/customer themes), typography specimen,
+  spacing grid, icon gallery.
+- `addon-a11y` + play-function interaction tests per component.
+
+## Testing & quality gates
+
+| Gate | Tool | Fails the build when |
+|---|---|---|
+| Formula resolver unit tests | vitest | math/clamps/cycles regress |
+| CSS output snapshots | vitest | emitted CSS changes unexpectedly |
+| **Contrast matrix** | vitest + resolved JSON | any declared (fg, bg, min-ratio) pair under threshold in any theme — incl. customer themes; prints actual ratio |
+| Component behavior | vitest + testing-library | interaction/aria regressions |
+| Story a11y | addon-a11y, interaction tests | violations in stories |
+
+Initial contrast matrix (AA): `fg-primary`/`fg-secondary` on `bg-primary`,
+`bg-secondary`, `fill-neutral-1…6` ≥ 4.5; `fg-accent/success/warning/danger` on
+`bg-primary` and on their `fill-tint-*` ≥ 4.5; every button/tag label on its
+variant background ≥ 4.5. `fg-tertiary/quaternary` are explicitly exempt
+(decorative tier) — documented as such.
+
+The pitch line this enables: *brand colors in, mathematically guaranteed
+accessible UI out.*
+
+## Customer theming workflow
+
+1. `pnpm new-theme acme` scaffolds `src/themes/customers/acme.ts` (palette +
+   slot map + optional formula overrides — any semantic or component token).
+2. Build emits `themes/acme.css` + resolved JSON; contrast matrix runs against
+   the customer's colors automatically.
+3. Figma plugin sync adds an "Acme" mode to the variable collection.
+4. Customer app: `import '@dku/tokens/themes/acme.css'` +
+   `<html data-ds-theme="acme">`.
+
+## Error handling summary
+
+- Codegen validation errors name the exact token path; build exits non-zero.
+- Contrast failures block CI with the failing pair and actual ratio.
+- Figma plugin: dry-run diff, idempotent upserts, orphan report, no silent deletes.
+- Missing theme import in a consumer → light defaults from `:root`, never unstyled.
+
+## Alternatives considered
+
+- **CSS-native authoring + parser** (approach B): zero indirection, but every CSS
+  feature becomes parser work; customer themes unvalidated. Rejected for v1.
+- **W3C DTCG tokens + Style Dictionary/Terrazzo** (approach C): standard interop,
+  but the format cannot express relative-color formulas — the system's core idea.
+  Rejected; a DTCG export can be generated later if interop is needed.
+- **Figma REST Variables API for sync**: write access is Enterprise-only. Rejected
+  as a hard dependency; plugin API chosen instead.
+- **MCP-only Figma sync**: works, but couples a team workflow to an AI session.
+  Demoted to bootstrap-only.
+
+## Build order sketch (input to the implementation plan)
+
+1. Monorepo scaffold + tokens package skeleton + formula DSL + resolver tests
+2. Default brand palette + light theme + codegen CSS/JSON/types emit
+3. Dark theme + contrast matrix + scales/utilities
+4. Storybook with generated token pages (parity with the screenshot's tables)
+5. Button + IconButton (proves component tokens, derived states, sizes)
+6. Remaining six components + icons
+7. Figma plugin + initial library sync
+8. Customer-theme scaffolder + example customer theme + docs polish
