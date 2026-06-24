@@ -1,0 +1,66 @@
+import resolvedLight from "@dku/tokens/resolved/light.json";
+
+export interface DocToken {
+  /** Original camelCase name from the theme definition */
+  name: string;
+  /** CSS custom property, e.g. `--ds-bg-primary` */
+  cssVar: string;
+  /** Resolved hex value */
+  hex: string;
+  /** Formula string describing how the token was derived */
+  formula: string;
+  /** OKLCH string, e.g. `oklch(0.95 0.005 250)` or `oklch(0.3 0.03 250 / 0.7)` */
+  oklch: string;
+}
+
+function camelToKebab(str: string): string {
+  return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+}
+
+function formatOklch(o: {
+  l: number;
+  c: number;
+  h: number;
+  alpha?: number;
+}): string {
+  const base = `oklch(${o.l} ${o.c} ${o.h}`;
+  return o.alpha != null ? `${base} / ${o.alpha})` : `${base})`;
+}
+
+const resolved = resolvedLight as {
+  theme: string;
+  tokens: Record<
+    string,
+    {
+      name: string;
+      oklch: { l: number; c: number; h: number; alpha?: number };
+      hex: string;
+      formula: string;
+    }
+  >;
+};
+
+export const docTokens: DocToken[] = Object.values(resolved.tokens).map(
+  (t) => ({
+    name: t.name,
+    cssVar: `--ds-${camelToKebab(t.name)}`,
+    hex: t.hex,
+    formula: t.formula,
+    oklch: formatOklch(t.oklch),
+  }),
+);
+
+/** Group tokens by their prefix (bg, fg, fill, border). */
+export function groupByPrefix(
+  tokens: DocToken[],
+): Record<string, DocToken[]> {
+  const groups: Record<string, DocToken[]> = {};
+  for (const token of tokens) {
+    // Extract prefix: everything before the first uppercase letter
+    const match = token.name.match(/^([a-z]+)/);
+    const prefix = match ? match[1] : "other";
+    if (!groups[prefix]) groups[prefix] = [];
+    groups[prefix].push(token);
+  }
+  return groups;
+}
