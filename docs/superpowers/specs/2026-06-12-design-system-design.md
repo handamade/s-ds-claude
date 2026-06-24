@@ -21,7 +21,7 @@ A themeable design system (Figma + code) for Dmytro's own projects and customer 
 | 2 | Source of truth | Code-first; Figma receives generated values | Figma variables can't hold OKLCH formulas — only resolved statics |
 | 3 | Styling delivery | CSS custom properties + CSS Modules | Zero runtime deps, no framework lock-in |
 | 4 | v1 scope | Foundations + 8 components + Storybook | Proves every architectural idea without drowning in component work |
-| 5 | Browser floor | Evergreen only (Chrome/Edge 119+, Safari 16.4+, Firefox 128+) | Live relative-color syntax has a hard floor; no fallback machinery |
+| 5 | Browser floor | Evergreen only (Chrome/Edge 119+, Safari 18+, Firefox 128+) | Relative color syntax with custom properties (`oklch(from var(…) …)`) is reliably supported from Safari 18+; 16.4 shipped the basic syntax but had bugs with `var()` in the `from` position |
 | 6 | Token authoring | TS formula DSL → codegen (approach A) | Formulas as data: one resolver feeds CSS, Figma, docs, and tests — no drift |
 | 7 | Token layering | 3 tiers: primitive → semantic → component | Industry-standard structure (≈ Material reference/system/component) |
 | 8 | Intra-layer references | Allowed, cycle-checked by codegen | Enables fg-derived tints and self-derived hover states (principle 3) |
@@ -33,8 +33,9 @@ A themeable design system (Figma + code) for Dmytro's own projects and customer 
 | 14 | Variant naming | Flat: `accent / neutral / danger` + `-subtle` / `ghost` | No primary/secondary hierarchy (principle 4) |
 | 15 | Select (v1) | Styled native `<select>` | Bulletproof a11y now; custom listbox is v2 |
 | 16 | Tooltip | Native popover API + tiny positioning util | Zero dependencies |
-| 17 | Quality gate | Contrast matrix fails the build, per theme | "Brand colors in, guaranteed-accessible UI out" |
+| 17 | Quality gate | Contrast matrix fails the build, per theme | Every declared (fg, bg) pair is contrast-validated at build time; not a blanket a11y guarantee (focus rings, touch targets, semantic HTML are tested separately) |
 | 18 | Two-way Figma sync | Non-goal | Code is the single source of truth; Figma is a projection |
+| 19 | Gamut policy | Browser gamut-maps live CSS; codegen clamps resolved values to sRGB via culori | Figma/hex consumers need safe values; ΔE > 2 build warning catches palette anchors pushing gamut boundaries |
 
 ## Non-goals (v1)
 
@@ -90,7 +91,7 @@ reference implementation; dark redefines formulas (e.g. `fg-primary` derives fro
 | fg | `fg-primary` | from ink: L 30%, C 0.03 |
 | | `fg-secondary/tertiary/quaternary` | fg-primary at alpha 0.7 / 0.5 / 0.3 |
 | | `fg-primary-inverted`, `fg-static-white` | canvas ref / white |
-| | `fg-accent/success/warning/danger` | from slot: L 65%, C min(c, 0.23) |
+| | `fg-accent/success/warning/danger` | from slot: L 65%, C cap(0.23) |
 | fill | `fill-neutral-1…6` | canvas with progressive ΔL (±0.016…0.068) |
 | | `fill-accent` (+ status fills) | slot refs |
 | | `fill-tint-accent/success/warning/danger` | **from the matching fg token, alpha 0.12** |
@@ -121,15 +122,16 @@ One typed shape covers every formula above:
 
 ```ts
 // packages/tokens/src/themes/light.ts
-fgAccent:       token({ from: slot.accent,  l: set(0.65), c: max(0.23) }),
+fgAccent:       token({ from: slot.accent,  l: set(0.65), c: cap(0.23) }),
 fgSecondary:    token({ from: ref.fgPrimary, alpha: 0.7 }),
 fillNeutral3:   token({ from: slot.canvas,  l: delta(-0.017), c: delta(+0.001) }),
 fillTintAccent: token({ from: ref.fgAccent, alpha: 0.12 }),
 ```
 
-Channel operations: `set(v)`, `delta(±v)`, `max(v)` (clamp), `alpha`. Sources:
-`slot.*` (palette roles) or `ref.*` (other tokens, cycle-checked). The DSL stays
-this small until a real token needs more — YAGNI.
+Channel operations: `set(v)`, `delta(±v)`, `cap(v)` (upper clamp — emits
+`min(channel, v)` in CSS), `alpha`. Sources: `slot.*` (palette roles) or
+`ref.*` (other tokens, cycle-checked). The DSL stays this small until a real
+token needs more — YAGNI.
 
 ### Scales — pixel-true names, rem values
 
@@ -149,6 +151,21 @@ this small until a real token needs more — YAGNI.
 - Themes nest (subtree theming works — it's all custom-property scope).
 - A consumer that forgets a theme import degrades to light defaults, never to
   unstyled output.
+
+### Gamut policy
+
+OKLCH can express colors outside the sRGB gamut. Two contexts, two strategies:
+
+- **Live CSS** (`oklch(from … calc(…))`): the browser's own gamut mapping
+  handles out-of-gamut values at render time (CSS Color Level 4 mandates this).
+  No action needed from the system.
+- **Resolved JSON / Figma sync**: culori's `toGamut('oklch', 'srgb')` is
+  applied during codegen. Resolved hex values are always sRGB-safe. A build
+  warning is emitted when clamping changes a color by ΔE > 2, flagging palette
+  anchors that are pushing gamut boundaries — the designer can then adjust the
+  source anchor rather than silently accepting a shifted resolved value.
+
+Decision 19 in the decision log.
 
 ### Terminology mapping (token tiers vs. atomic design)
 
@@ -247,6 +264,72 @@ Conventions:
 The 8: **Button, IconButton, Input, Select, Checkbox, Switch, Tag/Badge, Tooltip**,
 plus ~16 tree-shakable icon components (`currentColor`).
 
+## Usage guidance
+
+### Variants — when to use what
+
+| Variant | Intent | Typical use |
+|---|---|---|
+| `accent` | Primary action, draws attention | Submit, CTA, main action in a group |
+| `accent-subtle` | Accent tone, lower visual weight | Selected state, active filter, soft CTA |
+| `neutral` | Default, structurally present | Secondary actions, toolbar buttons |
+| `neutral-subtle` | Minimal chrome | Inline actions, table row actions |
+| `ghost` | No visible container until hover | Icon-only triggers, compact toolbars |
+| `danger` | Destructive action | Delete, remove, disconnect |
+| `danger-subtle` | Destructive context, low urgency | Warning badges, soft destructive hints |
+| `success / warning` (Tag only) | Status communication | Status badges, labels |
+
+Rule of thumb: one `accent` per visual group; everything else `neutral` or
+`ghost`. `danger` only for actions with real consequences.
+
+### Typography — combo naming and selection
+
+Token pattern: `--ds-text-{fontSize}-{lineHeight}-{weight}`.
+
+| Use case | Token | Why this combo |
+|---|---|---|
+| Body text | `text-16-24-regular` | 1.5 line-height for readability in paragraphs |
+| Compact UI text | `text-14-20-regular` | Tighter leading for labels, table cells |
+| Headings | `text-24-32-medium` | Medium weight avoids bold fatigue |
+| Small labels | `text-12-16-regular` | Smallest readable size for captions |
+
+Adding a new combo (e.g. `text-17-21-extrabold` for a marketing page) is one
+line in the scale definition — no hierarchy conflict, no rename cascade.
+
+### Interactive states — derivation model
+
+States are derived from the component's own tokens, not from a global state
+scale. The chain:
+
+```
+default bg → hover: L - 0.04  → active: L - 0.08  → disabled: alpha 0.4
+           → focus: 2px ring from --ds-border-focus
+```
+
+Overriding the component's `--ds-{component}-accent-bg` retunes hover/active
+automatically. Disabled state preserves the variant's hue at reduced alpha —
+never goes gray.
+
+### Figma governance
+
+Code is the single source of truth; Figma is a generated projection. Workflow:
+
+1. **Token changes happen in code only.** Edit the DSL, run `pnpm build`,
+   verify in Storybook.
+2. **Sync to Figma** by running the in-repo plugin. It reports
+   created/updated/orphaned variables. Review the diff before committing.
+3. **Components in Figma** are drawn by hand (designer-controlled) but use
+   only synced variables for color, spacing, and typography — no local styles
+   or hardcoded values.
+4. **Detached instances** (components unlinked from the library) are the
+   designer's responsibility to resync; the system can't prevent this.
+5. **New brand/customer theme**: add in code first (scaffold → build →
+   contrast check → plugin sync). Never author a palette directly in Figma.
+
+The plugin's dry-run mode and orphan report are the safety nets. No variable
+is silently deleted — orphans are listed so the designer can clean up
+intentionally.
+
 ## Storybook & docs (`apps/storybook`)
 
 - Storybook 9 + Vite.
@@ -272,8 +355,10 @@ Initial contrast matrix (AA): `fg-primary`/`fg-secondary` on `bg-primary`,
 variant background ≥ 4.5. `fg-tertiary/quaternary` are explicitly exempt
 (decorative tier) — documented as such.
 
-The pitch line this enables: *brand colors in, mathematically guaranteed
-accessible UI out.*
+The pitch line this enables: *brand colors in, contrast-validated token set
+out.* The contrast matrix covers the declared (fg, bg) pairings; it does not
+replace full-scope accessibility testing (focus management, touch targets,
+motion, semantic HTML) — those are covered by component tests and addon-a11y.
 
 ## Customer theming workflow
 
