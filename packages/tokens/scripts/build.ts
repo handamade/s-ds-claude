@@ -11,6 +11,7 @@ import { resolve } from "../src/dsl/resolver.js";
 import { emitBaseCSS, emitThemeCSS } from "./emit-css.js";
 import { emitResolvedJSON } from "./emit-json.js";
 import { emitTokenTypes } from "./emit-types.js";
+import { emitScaleVarsCSS, emitUtilitiesCSS } from "./emit-utilities.js";
 
 // ── Config ────────────────────────────────────────────────────────
 
@@ -34,8 +35,14 @@ function build(): void {
   mkdirSync(resolvedDir, { recursive: true });
   mkdirSync(typesDir, { recursive: true });
 
-  // 1. Emit base palette CSS
-  const baseCSS = emitBaseCSS(defaultPalette);
+  // 1. Emit base CSS: palette vars + scale vars
+  const paletteCSS = emitBaseCSS(defaultPalette);
+  const scaleVars = emitScaleVarsCSS();
+  // Inject scale vars into the :root block (before the closing braces)
+  const baseCSS = paletteCSS.replace(
+    /(\s*}\n})\n$/,
+    `\n\n${scaleVars}\n$1\n`,
+  );
   writeFileSync(join(distDir, "base.css"), baseCSS);
   console.log("  wrote dist/base.css");
 
@@ -68,6 +75,11 @@ function build(): void {
   const types = emitTokenTypes(themes);
   writeFileSync(join(typesDir, "index.ts"), types);
   console.log("  wrote dist/types/index.ts");
+
+  // 4. Emit utility classes
+  const utilitiesCSS = emitUtilitiesCSS();
+  writeFileSync(join(distDir, "utilities.css"), utilitiesCSS);
+  console.log("  wrote dist/utilities.css");
 
   console.log("[tokens] Build complete.");
 }
