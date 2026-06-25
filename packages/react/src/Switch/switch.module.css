@@ -1,0 +1,79 @@
+/* ── Label wrapper ────────────────────────────────────────────── */
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-8);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-sm-size);
+  line-height: var(--ds-text-sm-line);
+  color: var(--ds-fg-primary);
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Visually-hidden native input ────────────────────────────── */
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Track ───────────────────────────────────────────────────── */
+
+.track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: var(--ds-radius-full);
+  background: var(--ds-fill-neutral4);
+  transition: background-color 0.15s ease;
+}
+
+.input:checked + .track {
+  background: var(--ds-fill-accent);
+}
+
+/* Focus visible */
+.input:focus-visible + .track {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: 2px;
+}
+
+/* ── Thumb ───────────────────────────────────────────────────── */
+
+.thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--ds-radius-full);
+  background: white;
+  left: 2px;
+  transition: left 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+.input:checked + .track .thumb {
+  left: 18px;
+}
+
+/* ── Label text ──────────────────────────────────────────────── */
+
+.text {
+  color: var(--ds-fg-primary);
+}

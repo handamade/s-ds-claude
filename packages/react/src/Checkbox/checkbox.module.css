@@ -1,0 +1,78 @@
+/* ── Label wrapper ────────────────────────────────────────────── */
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-8);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-sm-size);
+  line-height: var(--ds-text-sm-line);
+  color: var(--ds-fg-primary);
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Visually-hidden native input ────────────────────────────── */
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Custom indicator ────────────────────────────────────────── */
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--ds-border-neutral);
+  border-radius: var(--ds-radius-4);
+  background: var(--ds-bg-primary);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* Checked state */
+.input:checked + .indicator {
+  background: var(--ds-fill-accent);
+  border-color: var(--ds-fill-accent);
+}
+
+/* Check mark via CSS */
+.input:checked + .indicator::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-0.5px, -0.5px);
+}
+
+/* Focus visible */
+.input:focus-visible + .indicator {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: 2px;
+}
+
+/* ── Label text ──────────────────────────────────────────────── */
+
+.text {
+  color: var(--ds-fg-primary);
+}
