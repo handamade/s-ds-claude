@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsx scripts/build.ts",
-    "dev": "tsx --watch scripts/build.ts --watch"
+    "dev": "tsx --watch scripts/build.ts --watch",
+    "new-theme": "tsx scripts/new-theme.ts"
   },
   "dependencies": {
     "culori": "^4.0.0"
