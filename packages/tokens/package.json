@@ -6,6 +6,7 @@
     "./base.css": "./dist/base.css",
     "./light.css": "./dist/light.css",
     "./dark.css": "./dist/dark.css",
+    "./acme.css": "./dist/acme.css",
     "./utilities.css": "./dist/utilities.css",
     "./components/*": "./dist/components/*",
     "./resolved/*": "./dist/resolved/*",
