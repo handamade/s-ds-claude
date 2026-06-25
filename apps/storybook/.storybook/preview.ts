@@ -4,6 +4,7 @@ import { createElement } from "react";
 import "@dku/tokens/base.css";
 import "@dku/tokens/light.css";
 import "@dku/tokens/dark.css";
+import "@dku/tokens/acme.css";
 import "@dku/tokens/utilities.css";
 
 const preview: Preview = {
@@ -16,6 +17,7 @@ const preview: Preview = {
         items: [
           { value: "light", title: "Light", icon: "sun" },
           { value: "dark", title: "Dark", icon: "moon" },
+          { value: "acme", title: "Acme", icon: "paintbrush" },
         ],
         dynamicTitle: true,
       },
