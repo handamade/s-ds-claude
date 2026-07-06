@@ -3,7 +3,8 @@ import { resolve } from "../src/dsl/resolver.js";
 import { defaultPalette, defaultSlots } from "../src/palettes/default.js";
 import { lightTheme } from "../src/themes/light.js";
 import { darkTheme } from "../src/themes/dark.js";
-import { checkContrast, wcagAAPairs } from "../src/contrast-matrix.js";
+import { checkContrast, wcagAAPairs, componentLabelPairs } from "../src/contrast-matrix.js";
+import { acmePalette, acmeSlots } from "../src/themes/customers/acme.js";
 import type { ContrastResult } from "../src/contrast-matrix.js";
 
 function formatFailures(results: ContrastResult[]): string {
@@ -60,4 +61,28 @@ describe("contrast matrix", () => {
       ]),
     ).toThrow("Unknown foreground token");
   });
+});
+
+describe("component label pairs", () => {
+  it("includes solid-variant label pairs", () => {
+    const key = (p: { fg: string; bg: string }) => `${p.fg}/${p.bg}`;
+    const keys = componentLabelPairs.map(key);
+    expect(keys).toContain("fgStaticWhite/fillAccent");
+    expect(keys).toContain("fgStaticWhite/fillDanger");
+    expect(keys).toContain("fgStaticWhite/fillSuccess");
+    expect(keys).toContain("fgStaticBlack/fillWarning");
+  });
+
+  for (const [name, palette, slots] of [
+    ["light", defaultPalette, defaultSlots],
+    ["dark", defaultPalette, defaultSlots],
+    ["acme", acmePalette, acmeSlots],
+  ] as const) {
+    it(`${name}: all component label pairs pass AA`, () => {
+      const theme = name === "dark" ? darkTheme : lightTheme;
+      const resolved = resolve(theme, palette, slots);
+      const results = checkContrast(resolved, componentLabelPairs);
+      expect(results.filter((r) => !r.pass)).toEqual([]);
+    });
+  }
 });

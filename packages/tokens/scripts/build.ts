@@ -8,7 +8,7 @@ import { darkTheme } from "../src/themes/dark.js";
 import { acmePalette, acmeSlots } from "../src/themes/customers/acme.js";
 import { validate } from "../src/dsl/validator.js";
 import { resolve } from "../src/dsl/resolver.js";
-import { checkContrast, wcagAAPairs } from "../src/contrast-matrix.js";
+import { checkContrast, wcagAAPairs, componentLabelPairs } from "../src/contrast-matrix.js";
 
 import { emitBaseCSS, emitThemeCSS } from "./emit-css.js";
 import { emitResolvedJSON } from "./emit-json.js";
@@ -74,7 +74,7 @@ function build(): void {
     const resolved = resolve(themeDef, palette, slots);
 
     // Check contrast
-    const contrastResults = checkContrast(resolved, wcagAAPairs);
+    const contrastResults = checkContrast(resolved, [...wcagAAPairs, ...componentLabelPairs]);
     const failures = contrastResults.filter((r) => !r.pass);
     if (failures.length > 0) {
       console.error(`  CONTRAST FAILURES in ${themeName}:`);

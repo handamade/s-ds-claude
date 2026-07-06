@@ -11,6 +11,7 @@ export const lightTheme: ThemeDef = {
   fgQuaternary: token({ from: ref.fgPrimary, alpha: 0.3 }),
   fgPrimaryInverted: token({ from: slot.canvas }),
   fgStaticWhite: token({ from: slot.canvas, l: set(1.0), c: set(0) }),
+  fgStaticBlack: token({ from: slot.ink, l: set(0.25), c: cap(0.03) }),
 
   fgAccent: token({ from: slot.accent, l: set(0.48), c: cap(0.23) }),
   fgSuccess: token({ from: slot.success, l: set(0.48), c: cap(0.23) }),
