@@ -6,6 +6,7 @@
     "./*.css": "./dist/*.css",
     "./components/*": "./dist/components/*",
     "./resolved/*": "./dist/resolved/*",
+    "./dtcg/*": "./dist/dtcg/*",
     "./types": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js"

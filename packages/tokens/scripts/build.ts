@@ -15,6 +15,7 @@ import { emitResolvedJSON } from "./emit-json.js";
 import { emitTokenTypes } from "./emit-types.js";
 import { emitScaleVarsCSS, emitUtilitiesCSS } from "./emit-utilities.js";
 import { emitComponentVarsCSS } from "./emit-components.js";
+import { emitDTCG } from "./emit-dtcg.js";
 import { gamutWarnings } from "../src/gamut.js";
 import { buttonVars, BUTTON_VARIANTS } from "../src/components/button.js";
 import { sizeScale } from "../src/scales/sizes.js";
@@ -48,6 +49,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const distDir = join(__dirname, "..", "dist");
 const resolvedDir = join(distDir, "resolved");
 const typesDir = join(distDir, "types");
+const dtcgDir = join(distDir, "dtcg");
 
 // ── Build ─────────────────────────────────────────────────────────
 
@@ -58,6 +60,7 @@ function build(): void {
   mkdirSync(distDir, { recursive: true });
   mkdirSync(resolvedDir, { recursive: true });
   mkdirSync(typesDir, { recursive: true });
+  mkdirSync(dtcgDir, { recursive: true });
 
   // 1. Emit base CSS: default palette vars + scale vars.
   // Customer palettes are no longer merged in here — emitThemeCSS scopes
@@ -106,6 +109,11 @@ function build(): void {
     const json = emitResolvedJSON(themeName, resolved);
     writeFileSync(join(resolvedDir, `${themeName}.json`), json);
     console.log(`  wrote dist/resolved/${themeName}.json`);
+
+    // Emit DTCG JSON
+    const dtcgJson = emitDTCG(themeName, resolved);
+    writeFileSync(join(dtcgDir, `${themeName}.json`), dtcgJson);
+    console.log(`  wrote dist/dtcg/${themeName}.json`);
   }
 
   // 3. Emit TypeScript types
