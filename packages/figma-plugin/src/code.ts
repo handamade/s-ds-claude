@@ -20,7 +20,7 @@ interface SyncResult {
   created: number;
   updated: number;
   unchanged: number;
-  orphaned: number;
+  orphanedNames: string[];
   dryRun: boolean;
 }
 
@@ -116,7 +116,7 @@ async function syncTokens(msg: SyncMessage): Promise<SyncResult> {
       created: tokens.length,
       updated: 0,
       unchanged: 0,
-      orphaned: 0,
+      orphanedNames: [],
       dryRun: true,
     };
   }
@@ -163,7 +163,14 @@ async function syncTokens(msg: SyncMessage): Promise<SyncResult> {
     const varName = tokenToVariableName(token.name);
     processedNames.add(varName);
 
-    const newColor = hexToFigmaRGB(token.hex);
+    // Build color from hex + resolved alpha
+    const base = hexToFigmaRGB(token.hex);
+    const newColor: RGBA = {
+      r: base.r,
+      g: base.g,
+      b: base.b,
+      a: token.oklch.alpha ?? 1,
+    };
     const existingVar = existingVars.get(varName);
 
     if (existingVar) {
@@ -203,10 +210,10 @@ async function syncTokens(msg: SyncMessage): Promise<SyncResult> {
   }
 
   // 6. Find orphaned variables (in collection but not in token set)
-  let orphaned = 0;
+  const orphanedNames: string[] = [];
   for (const [name] of existingVars) {
     if (!processedNames.has(name)) {
-      orphaned++;
+      orphanedNames.push(name);
     }
   }
 
@@ -216,7 +223,7 @@ async function syncTokens(msg: SyncMessage): Promise<SyncResult> {
     created,
     updated,
     unchanged,
-    orphaned,
+    orphanedNames,
     dryRun,
   };
 }
