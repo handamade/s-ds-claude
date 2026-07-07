@@ -5,7 +5,7 @@ import type { ThemeDef } from "../src/dsl/types.js";
  */
 export function emitTokenTypes(
   themes: Record<string, ThemeDef>,
-  sizes: (number | string)[] = [],
+  sizes: number[] = [],
   variants: string[] = [],
 ): string {
   // Collect all unique token names across themes
