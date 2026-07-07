@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { defaultPalette, defaultSlots } from "../src/palettes/default.js";
 import { lightTheme } from "../src/themes/light.js";
 import { darkTheme } from "../src/themes/dark.js";
-import { acmePalette, acmeSlots } from "../src/themes/customers/acme.js";
+import { customerThemes } from "../src/themes/customers/index.js";
 import { validate } from "../src/dsl/validator.js";
 import { resolve } from "../src/dsl/resolver.js";
 import { checkContrast, wcagAAPairs, componentLabelPairs } from "../src/contrast-matrix.js";
@@ -38,7 +38,9 @@ interface ThemeConfig {
 const themes: Record<string, ThemeConfig> = {
   light: { theme: lightTheme, palette: defaultPalette, slots: defaultSlots },
   dark: { theme: darkTheme, palette: defaultPalette, slots: defaultSlots },
-  acme: { theme: lightTheme, palette: acmePalette, slots: acmeSlots },
+  ...Object.fromEntries(Object.entries(customerThemes).map(([name, c]) => [
+    name, { theme: { ...lightTheme, ...c.overrides }, palette: c.palette, slots: c.slots },
+  ])),
 };
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));

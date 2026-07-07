@@ -3,12 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    "./base.css": "./dist/base.css",
-    "./light.css": "./dist/light.css",
-    "./dark.css": "./dist/dark.css",
-    "./acme.css": "./dist/acme.css",
-    "./utilities.css": "./dist/utilities.css",
-    "./components.css": "./dist/components.css",
+    "./*.css": "./dist/*.css",
     "./components/*": "./dist/components/*",
     "./resolved/*": "./dist/resolved/*",
     "./types": {
