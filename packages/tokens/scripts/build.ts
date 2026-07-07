@@ -56,19 +56,13 @@ function build(): void {
   mkdirSync(resolvedDir, { recursive: true });
   mkdirSync(typesDir, { recursive: true });
 
-  // 1. Emit base CSS: palette vars + scale vars
-  // Merge all palettes so every theme's palette vars are available
-  const allPalettes: Record<string, { l: number; c: number; h: number }> = {};
-  for (const config of Object.values(themes)) {
-    Object.assign(allPalettes, config.palette);
-  }
-  const paletteCSS = emitBaseCSS(allPalettes);
-  const scaleVars = emitScaleVarsCSS();
-  // Inject scale vars into the :root block (before the closing braces)
-  const baseCSS = paletteCSS.replace(
-    /(\s*}\n})\n$/,
-    `\n\n${scaleVars}\n$1\n`,
-  );
+  // 1. Emit base CSS: default palette vars + scale vars.
+  // Customer palettes are no longer merged in here — emitThemeCSS scopes
+  // each theme's own palette vars inside its own selector block, so
+  // base.css only ever carries the default brand's palette.
+  const baseCSS =
+    emitBaseCSS(defaultPalette) +
+    `\n@layer ds.base {\n  :root {\n${emitScaleVarsCSS()}\n  }\n}\n`;
   writeFileSync(join(distDir, "base.css"), baseCSS);
   console.log("  wrote dist/base.css");
 
