@@ -24,6 +24,7 @@ export const guidance = {
     roles: ["sans", "serif", "mono", "display"],
     note: "Font roles are brand-level (D29). The DS ships no font files: consumers load each brand's webfonts themselves.",
     brands: { ember: { archivo: "800,900 (display/sans)", ibmPlexSerif: "400 (serif)", ibmPlexMono: "400,500 (mono)" } },
+    scope: "Brand font stacks fully apply when data-ds-theme is on the root <html> element (the standard consumer setup). In nested subtree theming, --ds-text-*/--ds-display-* combos keep the default stacks: custom properties substitute at :root.",
   },
   motion: {
     durations: [150, 200, 350, 450, 600],
