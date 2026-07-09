@@ -53,6 +53,17 @@ describe("scales", () => {
       expect(WEIGHT_VALUES.extrabold).toBe(800);
       expect(WEIGHT_VALUES.black).toBe(900);
     });
+    it("prefixes non-sans combo names with their role (WS2)", () => {
+      expect(comboName({ fontSize: 18, lineHeight: 28, weight: "regular", role: "serif" })).toBe("serif-18-28-regular");
+      expect(comboName({ fontSize: 16, lineHeight: 24, weight: "regular" })).toBe("16-24-regular");
+      expect(comboName({ fontSize: 16, lineHeight: 24, weight: "regular", role: "sans" })).toBe("16-24-regular");
+    });
+    it("emits serif/mono combos against their role font var", () => {
+      const css = emitScaleVarsCSS();
+      expect(css).toContain("--ds-text-serif-18-28-regular: 400 1.125rem/1.75rem var(--ds-font-serif);");
+      expect(css).toContain("--ds-text-mono-13-20-regular: 400 0.8125rem/1.25rem var(--ds-font-mono);");
+      expect(emitUtilitiesCSS()).toContain(".ds-text-mono-15-24-medium { font: var(--ds-text-mono-15-24-medium); }");
+    });
   });
 });
 

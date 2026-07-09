@@ -32,8 +32,13 @@ export function emitDTCG(themeName: string, resolved: ResolvedTheme): string {
     },
     typography: Object.fromEntries(typographyCombos.map((c) => [comboName(c), {
       $type: "typography",
-      $value: { fontFamily: "{fontFamily.sans}", fontSize: `${c.fontSize}px`, lineHeight: `${c.lineHeight}px`, fontWeight: WEIGHT_VALUES[c.weight] },
+      $value: { fontFamily: `{fontFamily.${c.role ?? "sans"}}`, fontSize: `${c.fontSize}px`, lineHeight: `${c.lineHeight}px`, fontWeight: WEIGHT_VALUES[c.weight] },
     }])),
-    fontFamily: { sans: { $type: "fontFamily", $value: ["ui-sans-serif", "system-ui", "sans-serif"] } },
+    fontFamily: {
+      sans: { $type: "fontFamily", $value: ["ui-sans-serif", "system-ui", "sans-serif"] },
+      serif: { $type: "fontFamily", $value: ["Georgia", "Times New Roman", "serif"] },
+      mono: { $type: "fontFamily", $value: ["ui-monospace", "SFMono-Regular", "monospace"] },
+      display: { $type: "fontFamily", $value: ["ui-sans-serif", "system-ui", "sans-serif"] },
+    },
   }, null, 2);
 }

@@ -1,7 +1,7 @@
 import { spacingScale } from "../src/scales/spacing.js";
 import { sizeScale } from "../src/scales/sizes.js";
 import { radiusScale } from "../src/scales/radius.js";
-import { typographyCombos, comboName, WEIGHT_VALUES } from "../src/scales/typography.js";
+import { typographyCombos, comboName, comboFontVar, WEIGHT_VALUES } from "../src/scales/typography.js";
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ export function emitScaleVarsCSS(): string {
 
   // Typography
   for (const c of typographyCombos) {
-    lines.push(`    --ds-text-${comboName(c)}: ${WEIGHT_VALUES[c.weight]} ${pxToRem(c.fontSize)}/${pxToRem(c.lineHeight)} var(--ds-font-sans);`);
+    lines.push(`    --ds-text-${comboName(c)}: ${WEIGHT_VALUES[c.weight]} ${pxToRem(c.fontSize)}/${pxToRem(c.lineHeight)} var(${comboFontVar(c)});`);
   }
 
   lines.push("");
