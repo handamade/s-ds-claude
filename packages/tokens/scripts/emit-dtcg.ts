@@ -7,7 +7,7 @@ import { typographyCombos, comboName, WEIGHT_VALUES, displayCombos, displayName 
 import { durationScale } from "../src/scales/motion.js";
 import { breakpoints, container } from "../src/scales/layout.js";
 
-const GROUPS = ["bg", "fg", "fill", "border"] as const;
+const GROUPS = ["bg", "fg", "fill", "border", "scrim"] as const;
 
 export function emitDTCG(themeName: string, resolved: ResolvedTheme): string {
   const color: Record<string, Record<string, unknown>> = {};

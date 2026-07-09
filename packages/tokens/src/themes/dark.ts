@@ -40,7 +40,14 @@ export const darkTheme: ThemeDef = {
   fillTintWarning: token({ from: ref.fgWarning, alpha: 0.15 }),
   fillTintDanger: token({ from: ref.fgDanger, alpha: 0.15 }),
 
+  borderFaint: token({ from: ref.fgPrimary, alpha: 0.08 }),
   borderNeutral: token({ from: ref.fgPrimary, alpha: 0.15 }),
   borderStrong: token({ from: ref.fgPrimary, alpha: 0.3 }),
   borderFocus: token({ from: ref.fgAccent }),
+
+  // Scrims (D32): page-canvas surfaces at alpha — never text pairs, so they
+  // carry no AA gate entries.
+  scrimSoft: token({ from: ref.bgPrimary, alpha: 0.25 }),
+  scrimMedium: token({ from: ref.bgPrimary, alpha: 0.35 }),
+  scrimHeavy: token({ from: ref.bgPrimary, alpha: 0.82 }),
 };
