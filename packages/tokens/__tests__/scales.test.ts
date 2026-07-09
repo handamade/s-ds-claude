@@ -67,6 +67,21 @@ describe("scales", () => {
       expect(container).toEqual({ max: 1312, gutter: 40, gutterNarrow: 24 });
       expect(zIndex).toEqual({ nav: 100, overlay: 1000, tooltip: 1100 });
     });
+
+    it("emits container, gutter, and z vars (WS4)", () => {
+      const css = emitScaleVarsCSS();
+      expect(css).toContain("--ds-container-max: 82rem;");
+      expect(css).toContain("--ds-gutter: 2.5rem;");
+      expect(css).toContain("--ds-z-nav: 100;");
+      expect(css).toContain("--ds-z-tooltip: 1100;");
+    });
+
+    it("emits .ds-container and the gutter step-down (D31)", () => {
+      const css = emitUtilitiesCSS();
+      expect(css).toContain(".ds-container { max-width: var(--ds-container-max); margin-inline: auto; padding-inline: var(--ds-gutter); }");
+      expect(css).toContain("@media (max-width: 960px)");
+      expect(css).toContain("--ds-gutter: 1.5rem;");
+    });
   });
 
   describe("typography combos", () => {

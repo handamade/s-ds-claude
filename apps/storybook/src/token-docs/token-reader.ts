@@ -60,6 +60,7 @@ interface ResolvedTheme {
     size: number[];
     radius: number[];
     motion: { durations: number[]; easings: Record<string, string> };
+    layout: { breakpoints: Record<string, number>; container: Record<string, number>; zIndex: Record<string, number> };
   };
 }
 

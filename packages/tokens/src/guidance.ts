@@ -31,4 +31,10 @@ export const guidance = {
       pulseDown: "App-level keyframe (the DS ships none): @keyframes pulse-down { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(6px); opacity: 1; } } — drive with var(--ds-ease-in-out).",
     },
   },
+  layout: {
+    breakpoints: { sm: 560, md: 960 },
+    note: "Breakpoints are build-time constants (D31): import { breakpoints } from '@dku/tokens/types'. CSS vars cannot drive @media.",
+    container: "Use .ds-container — max-width 1312px, gutter 40px stepping to 24px under md.",
+    zIndex: { nav: 100, overlay: 1000, tooltip: 1100 },
+  },
 } as const;

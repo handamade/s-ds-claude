@@ -3,6 +3,7 @@ import { sizeScale } from "../src/scales/sizes.js";
 import { radiusScale } from "../src/scales/radius.js";
 import { typographyCombos, comboName, comboFontVar, WEIGHT_VALUES, displayCombos, displayName } from "../src/scales/typography.js";
 import { durationScale, easings } from "../src/scales/motion.js";
+import { breakpoints, container, zIndex } from "../src/scales/layout.js";
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -60,6 +61,11 @@ export function emitScaleVarsCSS(): string {
   // Motion (WS3) — durations + named easing curves; see guidance.ts for reduced-motion policy
   for (const ms of durationScale) lines.push(`    --ds-duration-${ms}: ${ms}ms;`);
   for (const [name, curve] of Object.entries(easings)) lines.push(`    --ds-ease-${name}: ${curve};`);
+
+  lines.push("");
+  lines.push(`    --ds-container-max: ${pxToRem(container.max)};`);
+  lines.push(`    --ds-gutter: ${pxToRem(container.gutter)};`);
+  for (const [name, z] of Object.entries(zIndex)) lines.push(`    --ds-z-${name}: ${z};`);
 
   lines.push("");
 
@@ -131,6 +137,13 @@ export function emitUtilitiesCSS(): string {
   for (const d of displayCombos) {
     lines.push(`  .ds-display-${displayName(d)} { font: var(--ds-display-${displayName(d)}); letter-spacing: ${d.tracking}em; text-transform: uppercase; }`);
   }
+
+  lines.push("");
+  lines.push(`  .ds-container { max-width: var(--ds-container-max); margin-inline: auto; padding-inline: var(--ds-gutter); }`);
+  lines.push(`  /* Gutter narrows under md — breakpoint baked at build time (D31). */`);
+  lines.push(`  @media (max-width: ${breakpoints.md}px) {`);
+  lines.push(`    :root { --ds-gutter: ${pxToRem(container.gutterNarrow)}; }`);
+  lines.push(`  }`);
 
   lines.push("");
   lines.push("  /* Reduced motion (D30): zero every duration token; anything driven by");

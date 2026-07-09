@@ -5,6 +5,7 @@ import { sizeScale } from "../src/scales/sizes.js";
 import { radiusScale } from "../src/scales/radius.js";
 import { typographyCombos, comboName, WEIGHT_VALUES, displayCombos, displayName } from "../src/scales/typography.js";
 import { durationScale } from "../src/scales/motion.js";
+import { breakpoints, container } from "../src/scales/layout.js";
 
 const GROUPS = ["bg", "fg", "fill", "border"] as const;
 
@@ -30,6 +31,8 @@ export function emitDTCG(themeName: string, resolved: ResolvedTheme): string {
       space: Object.fromEntries(spacingScale.map((px) => [String(px), dim(px)])),
       size: Object.fromEntries(sizeScale.map((px) => [String(px), dim(px)])),
       radius: Object.fromEntries(radiusScale.map((px) => [String(px), dim(px)])),
+      breakpoint: Object.fromEntries(Object.entries(breakpoints).map(([k, v]) => [k, { $type: "dimension", $value: `${v}px` }])),
+      container: { max: dim(container.max), gutter: dim(container.gutter), gutterNarrow: dim(container.gutterNarrow) },
     },
     typography: Object.fromEntries(typographyCombos.map((c) => [comboName(c), {
       $type: "typography",
