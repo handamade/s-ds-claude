@@ -37,6 +37,7 @@ export const emberFonts: BrandFonts = {
 /** D34 component-token overrides — emitted at [data-ds-theme="ember"] in ds.components. */
 export const emberComponentOverrides: Record<string, string> = {
   "button-font": "var(--ds-text-mono-15-24-regular)",
+  "card-radius": "0",
 };
 
 export const emberOverrides: ThemeDef = {

@@ -2,6 +2,8 @@ export { Button } from "./Button/Button.js";
 export type { ButtonProps } from "./Button/Button.js";
 export { IconButton } from "./IconButton/IconButton.js";
 export type { IconButtonProps } from "./IconButton/IconButton.js";
+export { Card } from "./Card/Card.js";
+export type { CardProps } from "./Card/Card.js";
 export { Input } from "./Input/Input.js";
 export type { InputProps } from "./Input/Input.js";
 export { Select } from "./Select/Select.js";

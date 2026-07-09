@@ -7,6 +7,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const COMPONENTS = [
   "Button",
   "IconButton",
+  "Card",
   "Input",
   "Select",
   "Checkbox",
