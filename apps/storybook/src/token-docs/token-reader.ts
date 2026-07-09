@@ -55,6 +55,12 @@ interface ResolvedTheme {
   >;
   typography: DocTypographyCombo[];
   display: { name: string; min: number; max: number; vw: number; lineHeight: number; weight: string; tracking: number; cssWeight: number }[];
+  scales: {
+    space: number[];
+    size: number[];
+    radius: number[];
+    motion: { durations: number[]; easings: Record<string, string> };
+  };
 }
 
 const RESOLVED: Record<ThemeName, ResolvedTheme> = {
@@ -94,6 +100,12 @@ export const docTypography: DocTypographyCombo[] = RESOLVED.light.typography;
  * so this remains a static export sourced from the light theme's resolution.
  */
 export const docDisplay = RESOLVED.light.display;
+
+/**
+ * Motion tokens (durations + easings) are theme-independent, so this
+ * remains a static export sourced from the light theme's resolution.
+ */
+export const docMotion = RESOLVED.light.scales.motion;
 
 /** Group tokens by their prefix (bg, fg, fill, border). */
 export function groupByPrefix(
