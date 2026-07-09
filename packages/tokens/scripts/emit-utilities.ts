@@ -132,6 +132,15 @@ export function emitUtilitiesCSS(): string {
     lines.push(`  .ds-display-${displayName(d)} { font: var(--ds-display-${displayName(d)}); letter-spacing: ${d.tracking}em; text-transform: uppercase; }`);
   }
 
+  lines.push("");
+  lines.push("  /* Reduced motion (D30): zero every duration token; anything driven by");
+  lines.push("     --ds-duration-* complies for free. ds.utilities wins over ds.base. */");
+  lines.push("  @media (prefers-reduced-motion: reduce) {");
+  lines.push("    :root {");
+  for (const ms of durationScale) lines.push(`      --ds-duration-${ms}: 0.01ms;`);
+  lines.push("    }");
+  lines.push("  }");
+
   lines.push("}");
 
   return lines.join("\n") + "\n";

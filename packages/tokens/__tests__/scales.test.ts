@@ -51,6 +51,13 @@ describe("scales", () => {
       expect(css).toContain("--ds-ease-in-out: ease-in-out;");
       expect(css).toContain("--ds-ease-soft: cubic-bezier(0.2, 0.6, 0.2, 1);");
     });
+
+    it("zeroes durations under prefers-reduced-motion (D30)", () => {
+      const css = emitUtilitiesCSS();
+      expect(css).toContain("@media (prefers-reduced-motion: reduce)");
+      expect(css).toContain("--ds-duration-150: 0.01ms;");
+      expect(css).toContain("--ds-duration-600: 0.01ms;");
+    });
   });
 
   describe("typography combos", () => {
