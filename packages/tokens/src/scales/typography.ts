@@ -1,6 +1,6 @@
-export type Weight = "regular" | "medium" | "semibold" | "bold";
+export type Weight = "regular" | "medium" | "semibold" | "bold" | "extrabold" | "black";
 export const WEIGHT_VALUES: Record<Weight, number> = {
-  regular: 400, medium: 500, semibold: 600, bold: 700,
+  regular: 400, medium: 500, semibold: 600, bold: 700, extrabold: 800, black: 900,
 };
 export interface TypographyCombo { fontSize: number; lineHeight: number; weight: Weight; }
 export const comboName = (c: TypographyCombo) => `${c.fontSize}-${c.lineHeight}-${c.weight}`;

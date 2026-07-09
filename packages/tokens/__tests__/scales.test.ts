@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { spacingScale } from "../src/scales/spacing.js";
 import { sizeScale } from "../src/scales/sizes.js";
 import { radiusScale } from "../src/scales/radius.js";
-import { comboName } from "../src/scales/typography.js";
+import { comboName, WEIGHT_VALUES } from "../src/scales/typography.js";
 import { emitScaleVarsCSS, emitUtilitiesCSS } from "../scripts/emit-utilities.js";
 
 describe("scales", () => {
@@ -48,6 +48,10 @@ describe("scales", () => {
     it("emits one utility class per combo", () => {
       const css = emitUtilitiesCSS();
       expect(css).toContain(".ds-text-16-24-regular { font: var(--ds-text-16-24-regular); }");
+    });
+    it("maps extended weights (WS2)", () => {
+      expect(WEIGHT_VALUES.extrabold).toBe(800);
+      expect(WEIGHT_VALUES.black).toBe(900);
     });
   });
 });
