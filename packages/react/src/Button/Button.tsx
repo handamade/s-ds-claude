@@ -8,7 +8,8 @@ type Variant =
   | "neutral-subtle"
   | "ghost"
   | "danger"
-  | "danger-subtle";
+  | "danger-subtle"
+  | "outline";
 
 type Size = 24 | 32 | 40 | 48;
 
@@ -29,6 +30,7 @@ const variantClass: Record<Variant, string> = {
   ghost: styles.ghost,
   danger: styles.danger,
   "danger-subtle": styles.dangerSubtle,
+  outline: styles.outline,
 };
 
 const sizeClass: Record<Size, string> = {

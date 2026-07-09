@@ -16,6 +16,7 @@ const meta: Meta<typeof Button> = {
         "ghost",
         "danger",
         "danger-subtle",
+        "outline",
       ],
     },
     size: {
@@ -57,6 +58,17 @@ export const DangerSubtle: Story = {
   args: { variant: "danger-subtle", children: "Danger Subtle" },
 };
 
+export const Outline: Story = {
+  render: () => (
+    <div style={{ display: "flex", alignItems: "center", gap: "var(--ds-space-12)" }}>
+      <Button variant="outline" size={24}>Size 24</Button>
+      <Button variant="outline" size={32}>Size 32</Button>
+      <Button variant="outline" size={40}>Size 40</Button>
+      <Button variant="outline" size={48}>Size 48</Button>
+    </div>
+  ),
+};
+
 export const Disabled: Story = {
   args: { variant: "accent", children: "Disabled", disabled: true },
 };
@@ -82,6 +94,7 @@ export const AllVariants: Story = {
       <Button variant="ghost">Ghost</Button>
       <Button variant="danger">Danger</Button>
       <Button variant="danger-subtle">Danger Subtle</Button>
+      <Button variant="outline">Outline</Button>
     </div>
   ),
 };

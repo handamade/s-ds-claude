@@ -91,4 +91,9 @@ describe("Button", () => {
       unmount();
     }
   });
+
+  it("renders the outline variant", () => {
+    render(<Button variant="outline">Ghost CTA</Button>);
+    expect(screen.getByRole("button", { name: "Ghost CTA" }).className).toMatch(/outline/);
+  });
 });

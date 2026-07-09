@@ -137,3 +137,18 @@
 .dangerSubtle:active:not(:disabled) {
   background: var(--ds-button-danger-subtle-bg-active);
 }
+
+/* Outline — ghost-bordered CTA (WS5). Hover fills accent. */
+.outline {
+  background: var(--ds-button-outline-bg);
+  color: var(--ds-button-outline-fg);
+  border: 1px solid var(--ds-button-outline-border);
+}
+.outline:hover:not(:disabled) {
+  background: var(--ds-button-outline-bg-hover);
+  color: var(--ds-button-outline-fg-hover);
+  border-color: transparent;
+}
+.outline:active:not(:disabled) {
+  background: var(--ds-button-outline-bg-active);
+}

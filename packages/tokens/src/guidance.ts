@@ -5,6 +5,7 @@ export const guidance = {
     { variant: "neutral", intent: "Default, structurally present", typicalUse: "Secondary actions, toolbar buttons" },
     { variant: "neutral-subtle", intent: "Minimal chrome", typicalUse: "Inline actions, table row actions" },
     { variant: "ghost", intent: "No visible container until hover", typicalUse: "Icon-only triggers, compact toolbars" },
+    { variant: "outline", intent: "Bordered ghost — visible structure, no fill until hover", typicalUse: "Marketing CTA, download button; hover fills accent" },
     { variant: "danger", intent: "Destructive action", typicalUse: "Delete, remove, disconnect" },
     { variant: "danger-subtle", intent: "Destructive context, low urgency", typicalUse: "Warning badges, soft destructive hints" },
     { variant: "success | warning", intent: "Status communication (Tag only)", typicalUse: "Status badges, labels" },
