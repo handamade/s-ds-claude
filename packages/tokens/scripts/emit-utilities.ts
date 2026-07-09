@@ -146,6 +146,10 @@ export function emitUtilitiesCSS(): string {
   lines.push(`  }`);
 
   lines.push("");
+  lines.push(`  .ds-media-tint { filter: var(--ds-media-tint); transition: filter var(--ds-duration-450) var(--ds-ease-soft); }`);
+  lines.push(`  .ds-media-tint:hover, .ds-media-tint:focus-visible { filter: none; }`);
+
+  lines.push("");
   lines.push("  /* Reduced motion (D30): zero every duration token; anything driven by");
   lines.push("     --ds-duration-* complies for free. ds.utilities wins over ds.base. */");
   lines.push("  @media (prefers-reduced-motion: reduce) {");

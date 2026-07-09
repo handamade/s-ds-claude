@@ -40,4 +40,10 @@ describe("ember brand (WS1)", () => {
   it("ember squares off card corners via component override (WS5): portfolio cards are square", () => {
     expect(customerThemes.ember.componentOverrides?.["card-radius"]).toBe("0");
   });
+
+  it("ember defines the sepia media tint (D35)", () => {
+    expect(customerThemes.ember.componentOverrides?.["media-tint"]).toBe(
+      "grayscale(1) sepia(0.65) saturate(1.6) hue-rotate(-12deg) brightness(0.88) contrast(1.05)",
+    );
+  });
 });

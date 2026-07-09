@@ -199,4 +199,10 @@ describe("emitUtilitiesCSS", () => {
   it("emits typography classes", () => {
     expect(css).toContain(".ds-text-16-24-regular { font: var(--ds-text-16-24-regular); }");
   });
+
+  it("emits the .ds-media-tint utility with hover reveal (D35)", () => {
+    const css = emitUtilitiesCSS();
+    expect(css).toContain(".ds-media-tint { filter: var(--ds-media-tint); transition: filter var(--ds-duration-450) var(--ds-ease-soft); }");
+    expect(css).toContain(".ds-media-tint:hover, .ds-media-tint:focus-visible { filter: none; }");
+  });
 });

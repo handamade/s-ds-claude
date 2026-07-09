@@ -38,6 +38,7 @@ export const emberFonts: BrandFonts = {
 export const emberComponentOverrides: Record<string, string> = {
   "button-font": "var(--ds-text-mono-15-24-regular)",
   "card-radius": "0",
+  "media-tint": "grayscale(1) sepia(0.65) saturate(1.6) hue-rotate(-12deg) brightness(0.88) contrast(1.05)",
 };
 
 export const emberOverrides: ThemeDef = {

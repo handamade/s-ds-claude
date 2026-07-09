@@ -39,4 +39,8 @@ export const guidance = {
     container: "Use .ds-container — max-width 1312px, gutter 40px stepping to 24px under md.",
     zIndex: { nav: 100, overlay: 1000, tooltip: 1100 },
   },
+  recipes: {
+    mediaTint: "Apply .ds-media-tint to media elements; the brand defines --ds-media-tint (D35). Hover/focus reveals true color over --ds-duration-450 --ds-ease-soft.",
+    sectionHeader: "SectionHeader ships as a recipe, not a component (v1.2 non-goal): baseline-aligned flex row — mono annotation (--ds-text-mono-14-20-regular, --ds-fg-accent) + h2 (.ds-display-32-32-extrabold) + optional trailing meta, border-bottom 1px var(--ds-border-faint), padding-bottom var(--ds-space-20).",
+  },
 } as const;

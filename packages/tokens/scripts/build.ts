@@ -29,6 +29,7 @@ import { tagVars } from "../src/components/tag.js";
 import { tooltipVars } from "../src/components/tooltip.js";
 import { cardVars } from "../src/components/card.js";
 import { navbarVars } from "../src/components/navbar.js";
+import { mediaVars } from "../src/components/media.js";
 import { guidance } from "../src/guidance.js";
 
 import type { Palette, SlotMap } from "../src/dsl/types.js";
@@ -151,6 +152,7 @@ function build(): void {
     tooltip: tooltipVars,
     card: cardVars,
     navbar: navbarVars,
+    media: mediaVars,
   };
   const componentsDir = join(distDir, "components");
   mkdirSync(componentsDir, { recursive: true });
