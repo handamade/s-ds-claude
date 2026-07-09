@@ -1,5 +1,6 @@
 import { token, delta, slot, ref } from "../../dsl/builders.js";
 import type { Palette, SlotMap, ThemeDef } from "../../dsl/types.js";
+import type { BrandFonts } from "./index.js";
 
 /** Dark-first brand (D27) — the portfolio's ember-field identity.
  * Anchors are culori-derived from the shipped portfolio hexes. */
@@ -21,6 +22,16 @@ export const emberSlots: SlotMap = {
   success: "emberEmerald",
   warning: "emberAmber",
   danger: "emberRuby",
+};
+
+/** Brand-level font stacks (D29): Archivo for display/sans, IBM Plex for
+ * serif/mono. The DS ships no font files — the portfolio site loads these
+ * webfonts itself. */
+export const emberFonts: BrandFonts = {
+  sans: '"Archivo", system-ui, sans-serif',
+  serif: '"IBM Plex Serif", Georgia, serif',
+  mono: '"IBM Plex Mono", "Courier New", monospace',
+  display: '"Archivo", system-ui, sans-serif',
 };
 
 export const emberOverrides: ThemeDef = {

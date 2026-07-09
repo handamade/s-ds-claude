@@ -6,6 +6,7 @@ import { defaultPalette, defaultSlots } from "../src/palettes/default.js";
 import { lightTheme } from "../src/themes/light.js";
 import { darkTheme } from "../src/themes/dark.js";
 import { customerThemes, assembleCustomerTheme } from "../src/themes/customers/index.js";
+import type { BrandFonts } from "../src/themes/customers/index.js";
 import { validate } from "../src/dsl/validator.js";
 import { resolve } from "../src/dsl/resolver.js";
 import { checkContrast, wcagAAPairs, componentLabelPairs } from "../src/contrast-matrix.js";
@@ -35,13 +36,14 @@ interface ThemeConfig {
   theme: typeof lightTheme;
   palette: Palette;
   slots: SlotMap;
+  fonts?: BrandFonts;
 }
 
 const themes: Record<string, ThemeConfig> = {
   light: { theme: lightTheme, palette: defaultPalette, slots: defaultSlots },
   dark: { theme: darkTheme, palette: defaultPalette, slots: defaultSlots },
   ...Object.fromEntries(Object.entries(customerThemes).map(([name, c]) => [
-    name, { theme: assembleCustomerTheme(c), palette: c.palette, slots: c.slots },
+    name, { theme: assembleCustomerTheme(c), palette: c.palette, slots: c.slots, fonts: c.fonts },
   ])),
 };
 
@@ -101,7 +103,7 @@ function build(): void {
     console.log(`  contrast check passed for ${themeName}`);
 
     // Emit theme CSS (live oklch formulas)
-    const themeCSS = emitThemeCSS(themeName, themeDef, palette, slots);
+    const themeCSS = emitThemeCSS(themeName, themeDef, palette, slots, { fonts: config.fonts });
     writeFileSync(join(distDir, `${themeName}.css`), themeCSS);
     console.log(`  wrote dist/${themeName}.css`);
 

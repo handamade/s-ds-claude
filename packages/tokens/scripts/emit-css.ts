@@ -5,6 +5,7 @@ import type {
   ThemeDef,
   TokenDef,
 } from "../src/dsl/types.js";
+import type { BrandFonts } from "../src/themes/customers/index.js";
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -110,6 +111,7 @@ export function emitThemeCSS(
   theme: ThemeDef,
   palette: Palette,
   slots: SlotMap,
+  opts?: { fonts?: BrandFonts },
 ): string {
   const lines: string[] = [];
 
@@ -135,6 +137,12 @@ export function emitThemeCSS(
     const cssVar = tokenVar(name);
     const value = tokenToLiveCSS(def, slots);
     lines.push(`    ${cssVar}: ${value};`);
+  }
+
+  if (opts?.fonts) {
+    for (const [role, stack] of Object.entries(opts.fonts)) {
+      lines.push(`    --ds-font-${role}: ${stack};`);
+    }
   }
 
   lines.push("  }");

@@ -18,4 +18,9 @@ export const guidance = {
   ],
   states: { hover: "L - 0.04", active: "L - 0.08", disabled: "element opacity 0.4 (keeps hue)", focus: "2px ring var(--ds-{component}-focus-ring)" },
   typographyDefaults: { body: "16-24-regular", compactUI: "14-20-regular", heading: "24-32-medium", caption: "12-16-regular" },
+  fonts: {
+    roles: ["sans", "serif", "mono", "display"],
+    note: "Font roles are brand-level (D29). The DS ships no font files: consumers load each brand's webfonts themselves.",
+    brands: { ember: { archivo: "800,900 (display/sans)", ibmPlexSerif: "400 (serif)", ibmPlexMono: "400,500 (mono)" } },
+  },
 } as const;

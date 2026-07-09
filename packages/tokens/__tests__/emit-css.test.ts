@@ -4,6 +4,7 @@ import { defaultPalette, defaultSlots } from "../src/palettes/default.js";
 import { lightTheme } from "../src/themes/light.js";
 import { acmePalette, acmeSlots } from "../src/themes/customers/acme.js";
 import { emitScaleVarsCSS } from "../scripts/emit-utilities.js";
+import { token, slot } from "../src/dsl/builders.js";
 
 describe("emitBaseCSS", () => {
   it("emits palette vars inside @layer ds.base", () => {
@@ -55,6 +56,16 @@ describe("emitThemeCSS", () => {
 
     expect(css).toContain("--ds-palette-coral: oklch(");
     expect(blockBody).toContain("--ds-palette-coral: oklch(");
+  });
+
+  it("emits brand font roles inside the theme block (D29)", () => {
+    const css = emitThemeCSS("ember", { bgPrimary: token({ from: slot.canvas }) },
+      { emberCanvas: { l: 0.147, c: 0.004, h: 49 } },
+      { ink: "emberCanvas", canvas: "emberCanvas", accent: "emberCanvas", success: "emberCanvas", warning: "emberCanvas", danger: "emberCanvas" },
+      { fonts: { display: '"Archivo", system-ui, sans-serif', mono: '"IBM Plex Mono", "Courier New", monospace' } });
+    expect(css).toContain(`--ds-font-display: "Archivo", system-ui, sans-serif;`);
+    expect(css).toContain(`--ds-font-mono: "IBM Plex Mono", "Courier New", monospace;`);
+    expect(css).toContain(`[data-ds-theme="ember"]`);
   });
 });
 
