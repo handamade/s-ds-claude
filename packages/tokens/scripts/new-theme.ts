@@ -7,7 +7,7 @@ export function parseNewThemeArgs(argv: string[]): { name: string | undefined; b
   let base = "light";
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
-    if (a === "--base") { base = argv[++i] ?? base; continue; }
+    if (a === "--base") { base = argv[++i] ?? "(missing)"; continue; }
     if (a.startsWith("--")) { if (FLAGS_WITH_VALUES.has(a)) i++; continue; }
     if (name === undefined) name = a;
   }

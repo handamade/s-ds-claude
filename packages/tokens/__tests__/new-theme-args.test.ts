@@ -11,4 +11,7 @@ describe("parseNewThemeArgs", () => {
   it("defaults base to light", () => {
     expect(parseNewThemeArgs(["midnight"])).toEqual({ name: "midnight", base: "light" });
   });
+  it("--base with no value fails closed (invalid sentinel, rejected by validation)", () => {
+    expect(parseNewThemeArgs(["midnight", "--base"])).toEqual({ name: "midnight", base: "(missing)" });
+  });
 });
