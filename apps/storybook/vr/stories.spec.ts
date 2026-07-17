@@ -18,6 +18,11 @@ for (const s of stories) {
   for (const theme of themesFor(s)) {
     test(`${s.id} @ ${theme}`, async ({ page }) => {
       await page.goto(`/iframe.html?id=${s.id}&globals=theme:${theme}`, { waitUntil: "networkidle" });
+      if (s.id.startsWith("components-tooltip")) {
+        // Tooltip stories open the bubble via a play fn (hover + 150ms delay);
+        // wait for it deterministically instead of racing the fixed settle below.
+        await page.waitForSelector('[role="tooltip"]', { state: "visible", timeout: 5000 });
+      }
       await page.waitForTimeout(250); // fonts/HMR-free settle
       await expect(page).toHaveScreenshot(`${s.id}--${theme}.png`, { fullPage: true });
     });
