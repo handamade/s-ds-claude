@@ -2,6 +2,7 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { withCustomConfig } from "react-docgen-typescript";
+import { loadSlotContracts } from "./slots.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const COMPONENTS = [
@@ -11,6 +12,7 @@ const COMPONENTS = [
   "Input",
   "Select",
   "Field",
+  "Dialog",
   "Checkbox",
   "Switch",
   "Tag",
@@ -57,6 +59,8 @@ function typeToString(p: { type: { name: string; value?: { value: string }[] } }
   return p.type.name;
 }
 
+const slotsByComponent = loadSlotContracts(join(root, "src"), COMPONENTS);
+
 const manifest = COMPONENTS.map((name) => {
   const [doc] = parser.parse(join(root, "src", name, `${name}.tsx`));
   if (!doc || Object.keys(doc.props ?? {}).length === 0) {
@@ -68,6 +72,7 @@ const manifest = COMPONENTS.map((name) => {
     name,
     // Collapse TSDoc line wrapping — the manifest description is a one-liner.
     description: (doc.description ?? "").replace(/\s+/g, " ").trim(),
+    slots: slotsByComponent[name],
     props: Object.values(doc.props ?? {}).map((p) => ({
       name: p.name,
       type: typeToString(p),

@@ -12,6 +12,14 @@ export interface ComponentEntry {
   props: PropDoc[];
   /** Full generated markdown doc (includes the a11y/keyboard table). */
   doc: string;
+  /** Authored slot contracts (D45): what each named slot accepts, how
+   * many, in what order. Empty for components with no slots. */
+  slots: Array<{
+    name: string;
+    accepts: { components?: string[]; contracts?: string[] };
+    cardinality: string;
+    order?: number;
+  }>;
 }
 
 export interface Oklch { l: number; c: number; h: number; alpha?: number }

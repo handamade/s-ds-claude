@@ -65,4 +65,12 @@ describe("buildIndex", () => {
       expect(c.description, `${c.name} has no description`).not.toBe("");
     }
   });
+
+  it("passes slot contracts through (D45)", async () => {
+    const index = await buildIndex(inputs);
+    const button = index.components.find((c) => c.name === "Button");
+    expect(button!.slots).toEqual([]);
+    const dialog = index.components.find((c) => c.name === "Dialog");
+    expect(dialog!.slots.map((s) => s.name)).toEqual(["title", "body", "footer"]);
+  });
 });
