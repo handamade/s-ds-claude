@@ -2,11 +2,11 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Field } from "./Field.js";
 import { Input } from "../Input/Input.js";
+import { Select } from "../Select/Select.js";
 import { Checkbox } from "../Checkbox/Checkbox.js";
 
 describe("Field", () => {
-  it.fails("associates the label with the wrapped control", () => {
-    // flipped to it() in Task 3 — Input doesn't consume FieldContext yet
+  it("associates the label with the wrapped control", () => {
     render(
       <Field label="Email">
         <Input size={40} />
@@ -81,5 +81,52 @@ describe("Field", () => {
       </Field>,
     );
     expect(container.querySelector("p")).toBeNull();
+  });
+});
+
+describe("FieldContext wiring", () => {
+  it("wires describedby, invalid and required into a wrapped Input", () => {
+    render(
+      <Field label="Email" error="Invalid email." required>
+        <Input type="email" />
+      </Field>,
+    );
+    const input = screen.getByLabelText(/Email/);
+    const message = screen.getByText("Invalid email.");
+    expect(input).toHaveAttribute("aria-describedby", message.id);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toBeRequired();
+  });
+
+  it("wires a wrapped Select the same way", () => {
+    render(
+      <Field label="Plan" description="Billed monthly.">
+        <Select>
+          <option>Free</option>
+        </Select>
+      </Field>,
+    );
+    const select = screen.getByLabelText("Plan");
+    const message = screen.getByText("Billed monthly.");
+    expect(select).toHaveAttribute("aria-describedby", message.id);
+    expect(select).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("merges an own aria-describedby with the Field one", () => {
+    render(
+      <Field label="Email" description="Hint.">
+        <Input aria-describedby="external-hint" />
+      </Field>,
+    );
+    const input = screen.getByLabelText("Email");
+    const message = screen.getByText("Hint.");
+    expect(input.getAttribute("aria-describedby")).toBe(`${message.id} external-hint`);
+  });
+
+  it("standalone Input keeps its own error prop and gains nothing", () => {
+    render(<Input error aria-label="Solo" />);
+    const input = screen.getByLabelText("Solo");
+    expect(input).not.toHaveAttribute("aria-describedby");
+    expect(input).not.toHaveAttribute("id");
   });
 });
