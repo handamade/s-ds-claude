@@ -1,0 +1,4 @@
+{
+  "interactive": ["Button", "IconButton"],
+  "inline-content": ["Tag", "IconButton"]
+}

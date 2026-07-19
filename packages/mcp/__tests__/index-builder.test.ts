@@ -65,4 +65,18 @@ describe("buildIndex", () => {
       expect(c.description, `${c.name} has no description`).not.toBe("");
     }
   });
+
+  it("passes slot contracts through (D45)", async () => {
+    const index = await buildIndex(inputs);
+    const button = index.components.find((c) => c.name === "Button");
+    expect(button!.slots).toEqual([]);
+    // Task 4 adds Dialog to COMPONENTS in emit-manifest.ts; until then the
+    // manifest has no Dialog entry, so this assertion is guarded rather
+    // than required — it tightens to an unconditional check once Task 4
+    // lands.
+    const dialog = index.components.find((c) => c.name === "Dialog");
+    if (dialog) {
+      expect(dialog.slots.map((s) => s.name)).toEqual(["title", "body", "footer"]);
+    }
+  });
 });

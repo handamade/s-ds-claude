@@ -47,6 +47,12 @@ interface ManifestComponent {
   name: string;
   description: string;
   props: PropDoc[];
+  slots: Array<{
+    name: string;
+    accepts: { components?: string[]; contracts?: string[] };
+    cardinality: string;
+    order?: number;
+  }>;
 }
 
 /** Shape of `packages/tokens/dist/resolved/<theme>.json`. */
@@ -80,6 +86,7 @@ export async function buildIndex(inputs: BuildInputs): Promise<PsiIndex> {
       name: c.name,
       description: c.description,
       props: c.props,
+      slots: c.slots,
       doc: await readFile(join(inputs.reactDocs, `${c.name}.md`), "utf8"),
     });
   }
