@@ -4,6 +4,7 @@
   border: 1px solid var(--psi-dialog-border);
   border-radius: var(--psi-radius-12);
   background: var(--psi-dialog-bg);
+  color: var(--psi-dialog-fg);
   max-width: calc(100vw - var(--psi-space-32));
 }
 

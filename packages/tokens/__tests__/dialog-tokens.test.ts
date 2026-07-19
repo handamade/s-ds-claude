@@ -8,6 +8,7 @@ describe("dialog tokens", () => {
       bg: "var(--psi-bg-secondary)",
       border: "var(--psi-border-faint)",
       backdrop: "var(--psi-scrim-heavy)",
+      fg: "var(--psi-fg-primary)",
       "title-fg": "var(--psi-fg-primary)",
     });
   });
@@ -16,5 +17,6 @@ describe("dialog tokens", () => {
     const css = emitComponentVarsCSS("dialog", dialogVars);
     expect(css).toContain("--psi-dialog-bg: var(--psi-bg-secondary)");
     expect(css).toContain("--psi-dialog-backdrop: var(--psi-scrim-heavy)");
+    expect(css).toContain("--psi-dialog-fg: var(--psi-fg-primary)");
   });
 });
