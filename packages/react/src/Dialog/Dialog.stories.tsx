@@ -45,3 +45,25 @@ export const FormDialog: Story = {
     </Dialog>
   ),
 };
+
+export const NoTitle: Story = {
+  render: () => (
+    <Dialog open onClose={() => {}} aria-label="Quick action">
+      Choose an action to continue.
+    </Dialog>
+  ),
+};
+
+export const ForcedChoice: Story = {
+  render: () => (
+    <Dialog
+      open
+      onClose={() => {}}
+      title="Pick one"
+      dismissible={false}
+      footer={<Button variant="accent" size={40}>Keep</Button>}
+    >
+      No escape hatch.
+    </Dialog>
+  ),
+};
