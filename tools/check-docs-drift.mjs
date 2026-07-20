@@ -21,6 +21,7 @@ const claims = [
   ["packages/mcp/README.md", /(\d+) React 19 components/, nc],
   ["packages/react/llms.txt", /(\d+) composition patterns/, np],
   ["packages/mcp/README.md", /(\d+) composition patterns/, np],
+  ["packages/mcp/llms.txt", /(\d+) composition patterns/, np],
 ];
 
 let failed = false;
