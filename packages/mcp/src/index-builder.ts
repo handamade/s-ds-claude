@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { ComponentEntry, Oklch, PropDoc, PsiIndex, TokenEntry } from "./types.js";
+import type { ComponentEntry, Oklch, PatternEntry, PropDoc, PsiIndex, TokenEntry } from "./types.js";
 
 const THEMES = ["light", "dark", "acme", "ember"];
 
@@ -69,6 +69,9 @@ export async function buildIndex(inputs: BuildInputs): Promise<PsiIndex> {
   const manifest = (await readJson(join(inputs.reactDist, "manifest.json"))) as {
     components: ManifestComponent[];
   };
+  const patternsFile = (await readJson(join(inputs.reactDist, "patterns.json"))) as {
+    patterns: PatternEntry[];
+  };
   const guidance = (await readJson(join(inputs.tokensDist, "guidance.json"))) as Record<
     string,
     unknown
@@ -108,6 +111,7 @@ export async function buildIndex(inputs: BuildInputs): Promise<PsiIndex> {
     themes: [...THEMES],
     components,
     tokens,
+    patterns: patternsFile.patterns,
     scales: light.scales,
     topics: {
       ...guidance,
