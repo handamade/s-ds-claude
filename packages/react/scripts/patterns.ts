@@ -103,8 +103,9 @@ export function validatePatterns(
   for (const pattern of patterns) {
     const prefix = `pattern "${pattern.id}": `;
     const referencedParams = new Set<string>();
-    // param key -> literal unions of every prop site it fills
-    const paramSites = new Map<string, Array<Array<string | number>>>();
+    // param key -> literal union of every prop site it fills; `null` marks a
+    // gap-node site (no manifest prop to check a union against — unconstrained).
+    const paramSites = new Map<string, Array<Array<string | number> | null>>();
     const referencedContent = new Set<string>();
 
     // Legal in prop positions: both {param:key} and {content:key}.
@@ -150,43 +151,63 @@ export function validatePatterns(
         referencedContent.add(node.content);
       }
 
-      if (manifestComponent && !isGap) {
-        for (const [propName, propValue] of Object.entries(node.props ?? {})) {
-          const propDef = manifestComponent.props.find((p) => p.name === propName);
-          if (!propDef) {
-            throw new Error(
-              `${prefix}${path}: unknown prop "${propName}" on component "${node.component}"`,
-            );
-          }
+      // Gap nodes have no manifest entry to check prop existence/type/union
+      // against, but their props must still be scanned for {param:}/{content:}
+      // placeholders — otherwise a declared param/content key that's only
+      // ever used on a gap node reads as "never referenced" (class 6/8 false
+      // positive). By the unknown-component check above, at this point
+      // either manifestComponent is set or isGap is true (or both) — a gap
+      // listing always wins over a coincidental manifest match.
+      for (const [propName, propValue] of Object.entries(node.props ?? {})) {
+        if (!manifestComponent || isGap) {
           trackPropPlaceholders(propValue);
-
           const paramMatch = typeof propValue === "string" ? PARAM_RE.exec(propValue) : null;
           if (paramMatch) {
-            const union = parseLiteralUnion(propDef.type);
+            // Unconstrained: no literal union to check against on a gap
+            // node, so record `null` — the class-7 options check below
+            // skips null sites instead of treating them as "not a
+            // literal-union prop".
             const sites = paramSites.get(paramMatch[1]) ?? [];
-            sites.push(union ?? []);
+            sites.push(null);
             paramSites.set(paramMatch[1], sites);
-            if (!union) {
-              throw new Error(
-                `${prefix}param "${paramMatch[1]}" fills prop "${propName}" which is not a literal-union prop`,
-              );
-            }
-            continue;
           }
+          continue;
+        }
 
+        const propDef = manifestComponent.props.find((p) => p.name === propName);
+        if (!propDef) {
+          throw new Error(
+            `${prefix}${path}: unknown prop "${propName}" on component "${node.component}"`,
+          );
+        }
+        trackPropPlaceholders(propValue);
+
+        const paramMatch = typeof propValue === "string" ? PARAM_RE.exec(propValue) : null;
+        if (paramMatch) {
           const union = parseLiteralUnion(propDef.type);
-          if (union) {
-            if (!union.includes(propValue as string | number)) {
-              throw new Error(
-                `${prefix}${path}: value "${propValue}" not in the literal union for prop "${propName}"`,
-              );
-            }
-          } else if (propDef.type === "boolean") {
-            if (typeof propValue !== "boolean") {
-              throw new Error(
-                `${prefix}${path}: value "${propValue}" is not a boolean for prop "${propName}"`,
-              );
-            }
+          const sites = paramSites.get(paramMatch[1]) ?? [];
+          sites.push(union ?? []);
+          paramSites.set(paramMatch[1], sites);
+          if (!union) {
+            throw new Error(
+              `${prefix}param "${paramMatch[1]}" fills prop "${propName}" which is not a literal-union prop`,
+            );
+          }
+          continue;
+        }
+
+        const union = parseLiteralUnion(propDef.type);
+        if (union) {
+          if (!union.includes(propValue as string | number)) {
+            throw new Error(
+              `${prefix}${path}: value "${propValue}" not in the literal union for prop "${propName}"`,
+            );
+          }
+        } else if (propDef.type === "boolean") {
+          if (typeof propValue !== "boolean") {
+            throw new Error(
+              `${prefix}${path}: value "${propValue}" is not a boolean for prop "${propName}"`,
+            );
           }
         }
       }
@@ -265,6 +286,7 @@ export function validatePatterns(
       }
       const sites = paramSites.get(key) ?? [];
       for (const union of sites) {
+        if (union === null) continue; // gap-node site: unconstrained, no literal union to check against
         for (const option of param.options) {
           if (!union.includes(option)) {
             throw new Error(
@@ -315,21 +337,32 @@ export function renderPreset(pattern: Pattern, components: ManifestComponent[]):
     return contentMatch ? content[contentMatch[1]] : raw;
   };
 
+  // JSX attribute values are double-quoted string literals — a literal `"`
+  // in the content/default text would otherwise terminate the attribute
+  // early and emit invalid JSX. Text children have no such delimiter (JSX
+  // text runs to the next `<`/`{`), so quotes there are left raw.
+  const escapeAttr = (s: string): string => s.replaceAll('"', "&quot;");
+
   // Resolves a prop's rendered RHS: {param:key} -> the parameter's default
   // (typed, so a numeric default renders as `{32}` not `"32"`); {content:key}
   // -> the content string; a literal string/number/boolean renders as-is.
+  // String results land in an attribute position, so `"` is escaped.
   const resolvePropValue = (raw: unknown): string => {
     if (typeof raw === "string") {
       const paramMatch = PARAM_RE.exec(raw);
       if (paramMatch) {
         const value = paramDefaults.get(paramMatch[1]);
-        return typeof value === "number" ? `{${value}}` : `"${value}"`;
+        return typeof value === "number" ? `{${value}}` : `"${escapeAttr(String(value))}"`;
       }
-      return `"${resolveText(raw)}"`;
+      return `"${escapeAttr(resolveText(raw))}"`;
     }
     return `{${raw}}`; // number | boolean literal
   };
 
+  /** Renders one pattern node to JSX. Body-slot fills and node.content both
+   * resolve to the element's children; when both are present, `body` wins —
+   * `node.content` is only consulted when the node has no `body` slot fills
+   * (see the `childText`/`childNodes` block below). */
   const renderNode = (node: PatternNode, depth: number): string => {
     const props: Array<{ name: string; value: string }> = [];
 
@@ -343,7 +376,7 @@ export function renderPreset(pattern: Pattern, components: ManifestComponent[]):
         const fill = fills[0];
         props.push(
           typeof fill === "string"
-            ? { name: slotName, value: `"${resolveText(fill)}"` }
+            ? { name: slotName, value: `"${escapeAttr(resolveText(fill))}"` }
             : { name: slotName, value: `{${renderNode(fill, depth + 1)}}` },
         );
       } else {

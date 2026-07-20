@@ -73,4 +73,19 @@ describe("renderPreset", () => {
     const noDefault: Pattern = { ...confirm, parameters: [{ key: "size", ask: "?", options: [32] }] };
     expect(renderPreset(noDefault, components)).toBeNull();
   });
+
+  it('escapes " as &quot; in an attribute position, leaves it raw as a text child', () => {
+    const withQuote: Pattern = {
+      id: "quote-test",
+      intent: "test",
+      match: ["m"],
+      compose: { component: "Button", props: { label: "{content:msg}" }, content: "msg" },
+      parameters: [],
+      content: { msg: 'Say "hi" now' },
+      gaps: [],
+    };
+    expect(renderPreset(withQuote, components)).toBe(
+      '<Button label="Say &quot;hi&quot; now">Say "hi" now</Button>\n',
+    );
+  });
 });

@@ -137,4 +137,22 @@ describe("validatePatterns (one case per D48 error class)", () => {
     expect(() => ok(base({ compose: { component: "Button", content: "label" } }))).toThrow(/content "label".*not declared/);
     expect(() => ok(base({ content: { orphan: "x" } }))).toThrow(/content "orphan".*never referenced/);
   });
+
+  it("gap-node props still track {content:} placeholders (review fix: gap props were skipped entirely)", () => {
+    const p = base({
+      gaps: ["Toolbar"],
+      compose: { component: "Toolbar", props: { x: "{content:ph}" } },
+      content: { ph: "x" },
+    });
+    expect(() => ok(p)).not.toThrow();
+  });
+
+  it("gap-node {param:} prop sites are unconstrained — no union to check against", () => {
+    const p = base({
+      gaps: ["Toolbar"],
+      compose: { component: "Toolbar", props: { size: "{param:s}" } },
+      parameters: [{ key: "s", ask: "?", options: ["any", "options", "at all"], default: "any" }],
+    });
+    expect(() => ok(p)).not.toThrow();
+  });
 });
