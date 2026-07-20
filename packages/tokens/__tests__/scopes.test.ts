@@ -52,4 +52,29 @@ describe("scopes vocabulary", () => {
     expect(PROPERTY_GROUPS.gap).toContain("gap");
     expect(PROPERTY_GROUPS.gap).toContain("padding");
   });
+
+  it("gap includes the logical-property longhands alongside their shorthands", () => {
+    expect(PROPERTY_GROUPS.gap).toEqual(
+      expect.arrayContaining([
+        "padding-inline-start", "padding-inline-end", "padding-block-start", "padding-block-end",
+        "margin-inline-start", "margin-inline-end", "margin-block-start", "margin-block-end",
+      ]),
+    );
+  });
+
+  it("gap covers edge-distance uses (icon offsets, viewport-inset sizing)", () => {
+    expect(PROPERTY_GROUPS.gap).toContain("background-position");
+    expect(PROPERTY_GROUPS.gap).toContain("max-width");
+  });
+
+  it("border includes the directional shorthands alongside the color longhands", () => {
+    expect(PROPERTY_GROUPS.border).toEqual(
+      expect.arrayContaining([
+        "border-top", "border-right", "border-bottom", "border-left",
+        "border-inline", "border-block",
+      ]),
+    );
+    // color-only longhands stay — directional shorthands are additive, not a replacement
+    expect(PROPERTY_GROUPS.border).toContain("border-top-color");
+  });
 });

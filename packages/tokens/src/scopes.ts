@@ -12,15 +12,21 @@ export const PROPERTY_GROUPS: Record<string, readonly string[]> = {
     "border", "border-color", "border-top-color", "border-right-color",
     "border-bottom-color", "border-left-color", "outline", "outline-color",
     "box-shadow",
+    "border-top", "border-right", "border-bottom", "border-left",
+    "border-inline", "border-block",
   ],
   gap: [
     "gap", "row-gap", "column-gap",
     "padding", "padding-top", "padding-right", "padding-bottom", "padding-left",
     "padding-inline", "padding-block",
+    "padding-inline-start", "padding-inline-end", "padding-block-start", "padding-block-end",
     "margin", "margin-top", "margin-right", "margin-bottom", "margin-left",
     "margin-inline", "margin-block",
+    "margin-inline-start", "margin-inline-end", "margin-block-start", "margin-block-end",
     "inset", "top", "right", "bottom", "left",
     "scroll-margin", "scroll-padding", "translate",
+    // edge-distance uses: icon offsets (background-position) and viewport-inset sizing (max-width in calc) are gap-family intent
+    "background-position", "max-width",
   ],
 };
 
