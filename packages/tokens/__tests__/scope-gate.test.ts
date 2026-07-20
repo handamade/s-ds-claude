@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkScopes, checkOverrideScopes } from "../src/scope-gate.js";
-import { token, set, slot, ref } from "../src/dsl/builders.js";
+import { token, slot, ref } from "../src/dsl/builders.js";
 import type { ThemeDef } from "../src/dsl/types.js";
 // The real inventory — the positive gate: current bindings must be clean.
 import { lightTheme } from "../src/themes/light.js";
