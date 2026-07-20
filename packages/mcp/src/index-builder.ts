@@ -69,6 +69,8 @@ export async function buildIndex(inputs: BuildInputs): Promise<PsiIndex> {
   const manifest = (await readJson(join(inputs.reactDist, "manifest.json"))) as {
     components: ManifestComponent[];
   };
+  // Fail-fast is deliberate: requires @handamade/psi-react built first — same posture
+  // as the manifest/guidance reads above.
   const patternsFile = (await readJson(join(inputs.reactDist, "patterns.json"))) as {
     patterns: PatternEntry[];
   };

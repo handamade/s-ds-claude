@@ -98,7 +98,7 @@ export function createStore(index: PsiIndex): Store {
   function search(query: string): Brief[] {
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
     if (terms.length === 0) {
-      // Overview: all components + all topics (tokens are discoverable via query).
+      // Overview: all components, patterns, and topics (tokens are discoverable via query).
       return briefs.filter((b) => b.kind !== "token").slice(0, MAX_RESULTS + 10);
     }
     return briefs
