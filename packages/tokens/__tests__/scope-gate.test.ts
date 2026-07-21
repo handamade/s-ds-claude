@@ -84,6 +84,24 @@ describe("scope gate (D46)", () => {
     expect(v[0].scopes).toEqual([]);
   });
 
+  // ── cross-family refs (D51: dialog/panel bind --psi-surface-*) ──
+  it("follows cross-family refs to their semantic scopes", () => {
+    const vars = {
+      surface: { bg: "var(--psi-fill-base)" },
+      widget: { "accent-bg": "var(--psi-surface-bg)" },
+    };
+    expect(checkScopes(vars, miniTheme)).toEqual([]);
+  });
+  it("flags a cross-family ref that lands on a wrong-scope token", () => {
+    const vars = {
+      surface: { border: "var(--psi-border-line)" },
+      widget: { "accent-bg": "var(--psi-surface-border)" },
+    };
+    expect(checkScopes(vars, miniTheme)).toEqual([
+      { component: "widget", key: "accent-bg", group: "surface", token: "borderLine", scopes: ["border"] },
+    ]);
+  });
+
   // ── the real inventory is clean, in every theme ──
   const themes = {
     light: lightTheme, dark: darkTheme,
