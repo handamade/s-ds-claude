@@ -14,15 +14,17 @@ import { fieldVars } from "../src/components/field.js";
 import { inputVars } from "../src/components/input.js";
 import { mediaVars } from "../src/components/media.js";
 import { navbarVars } from "../src/components/navbar.js";
+import { panelVars } from "../src/components/panel.js";
 import { selectVars } from "../src/components/select.js";
+import { surfaceVars } from "../src/components/surface.js";
 import { switchVars } from "../src/components/switch.js";
 import { tagVars } from "../src/components/tag.js";
 import { tooltipVars } from "../src/components/tooltip.js";
 
 const allVars = {
   button: buttonVars, card: cardVars, checkbox: checkboxVars, dialog: dialogVars,
-  field: fieldVars, input: inputVars, media: mediaVars, navbar: navbarVars,
-  select: selectVars, switch: switchVars, tag: tagVars, tooltip: tooltipVars,
+  field: fieldVars, input: inputVars, media: mediaVars, navbar: navbarVars, panel: panelVars,
+  select: selectVars, surface: surfaceVars, switch: switchVars, tag: tagVars, tooltip: tooltipVars,
 };
 
 const miniTheme: ThemeDef = {
@@ -82,6 +84,24 @@ describe("scope gate (D46)", () => {
     const v = checkScopes({ widget: { "label-fg": "var(--psi-fg-mutted)" } }, miniTheme);
     expect(v).toHaveLength(1);
     expect(v[0].scopes).toEqual([]);
+  });
+
+  // ── cross-family refs (D51: dialog/panel bind --psi-surface-*) ──
+  it("follows cross-family refs to their semantic scopes", () => {
+    const vars = {
+      surface: { bg: "var(--psi-fill-base)" },
+      widget: { "accent-bg": "var(--psi-surface-bg)" },
+    };
+    expect(checkScopes(vars, miniTheme)).toEqual([]);
+  });
+  it("flags a cross-family ref that lands on a wrong-scope token", () => {
+    const vars = {
+      surface: { border: "var(--psi-border-line)" },
+      widget: { "accent-bg": "var(--psi-surface-border)" },
+    };
+    expect(checkScopes(vars, miniTheme)).toEqual([
+      { component: "widget", key: "accent-bg", group: "surface", token: "borderLine", scopes: ["border"] },
+    ]);
   });
 
   // ── the real inventory is clean, in every theme ──

@@ -25,6 +25,7 @@ import { sizeScale } from "../src/scales/sizes.js";
 import { breakpoints } from "../src/scales/layout.js";
 import { inputVars } from "../src/components/input.js";
 import { selectVars } from "../src/components/select.js";
+import { surfaceVars } from "../src/components/surface.js";
 import { checkboxVars } from "../src/components/checkbox.js";
 import { switchVars } from "../src/components/switch.js";
 import { tagVars } from "../src/components/tag.js";
@@ -32,6 +33,7 @@ import { tooltipVars } from "../src/components/tooltip.js";
 import { cardVars } from "../src/components/card.js";
 import { dialogVars } from "../src/components/dialog.js";
 import { navbarVars } from "../src/components/navbar.js";
+import { panelVars } from "../src/components/panel.js";
 import { mediaVars } from "../src/components/media.js";
 import { fieldVars } from "../src/components/field.js";
 import { guidance } from "../src/guidance.js";
@@ -75,7 +77,9 @@ const componentVars: Record<string, Record<string, string>> = {
   input: inputVars,
   media: mediaVars,
   navbar: navbarVars,
+  panel: panelVars,
   select: selectVars,
+  surface: surfaceVars,
   switch: switchVars,
   tag: tagVars,
   tooltip: tooltipVars,
