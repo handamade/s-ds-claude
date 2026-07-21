@@ -1,6 +1,6 @@
 # @handamade/psi-react
 
-13 React 19 components consuming @handamade/psi-tokens. Zero runtime deps, CSS Modules, ref-as-prop.
+14 React 19 components consuming @handamade/psi-tokens. Zero runtime deps, CSS Modules, ref-as-prop.
 
 ## Machine-readable artifacts
 - dist/manifest.json: full component/prop inventory with types and defaults
@@ -22,6 +22,9 @@
 
 ## Card
 - <Card variant="stacked" | "featured" media={...} hoverLift>: stacked places media above the body, featured places media beside it (~1.6fr/1fr, stacks under the md breakpoint). hoverLift lifts the card translateY(-6px) over --psi-duration-350. Border uses --psi-border-faint.
+
+## Panel
+- <Panel padding={16|24}>: the elevated surface panel (D51) — bg-secondary, faint hairline border, radius-12, space-24 padding (16 for compact). Binds the shared --psi-surface-* recipe Dialog's panel also uses; brands retune both by overriding --psi-surface-*. Not a Card: no media slot, no hover lift.
 
 ## NavBar
 - <NavBar brand={...} actions={...}>{links}</NavBar>: brand slot leading, nav links centered/inline, actions slot trailing (theme switch, CTA). Renders inside .psi-container. Background defaults to --psi-scrim-heavy so content can scroll underneath; border uses --psi-border-faint.
