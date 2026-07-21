@@ -29,7 +29,7 @@ const COMPONENTS = [
 // className). Everything else inherited from *HTMLAttributes<...> (onClick,
 // disabled, id, style, aria-*, ...) is dropped so the manifest reflects each
 // component's actual API surface instead of hundreds of native attributes.
-const WELL_KNOWN_PASSTHROUGHS = ["ref", "className"];
+const WELL_KNOWN_PASSTHROUGHS = ["ref", "className", "placeholder"];
 
 const parser = withCustomConfig(join(root, "tsconfig.json"), {
   propFilter: (prop) =>
@@ -51,6 +51,7 @@ const parser = withCustomConfig(join(root, "tsconfig.json"), {
 // a fixed, accurate description here instead of leaving the field empty.
 const PASSTHROUGH_DESCRIPTIONS: Record<string, string> = {
   className: "Additional CSS class name(s) merged onto the component's root element.",
+  placeholder: "Native placeholder text shown while the field is empty (only on components whose host element supports it).",
 };
 
 /** Renders a prop's type as a single string, expanding literal unions. */

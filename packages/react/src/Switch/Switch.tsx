@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, Ref } from "react";
 import styles from "./switch.module.css";
 
 export interface SwitchProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "role"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "role" | "placeholder"> {
   /** Label text. */
   children?: React.ReactNode;
   /** Forwarded ref to the underlying `<input type="checkbox" role="switch">` element. */
