@@ -22,8 +22,10 @@ export const FilterToolbar: Story = {
     "aria-label": "Filters",
     children: (
       <>
-        <Input size={32} placeholder="Search" aria-label="Search" />
-        <Select size={32} aria-label="Category">
+        {/* Input/Select default to width:100%; size them in the story so the
+            row reads as a toolbar instead of every control stacking. */}
+        <Input size={32} placeholder="Search" aria-label="Search" style={{ width: 240 }} />
+        <Select size={32} aria-label="Category" style={{ width: 180 }}>
           <option>All</option>
           <option>Components</option>
         </Select>
@@ -38,8 +40,8 @@ export const Wrapping: Story = {
   render: () => (
     <div style={{ maxWidth: 320 }}>
       <Toolbar aria-label="Filters">
-        <Input size={32} placeholder="Search" aria-label="Search" />
-        <Select size={32} aria-label="Category"><option>All</option></Select>
+        <Input size={32} placeholder="Search" aria-label="Search" style={{ width: 200 }} />
+        <Select size={32} aria-label="Category" style={{ width: 140 }}><option>All</option></Select>
         <Tag variant="neutral">filter-one</Tag>
         <Tag variant="neutral">filter-two</Tag>
       </Toolbar>
