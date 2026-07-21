@@ -47,7 +47,7 @@ export function Playground() {
       <div className="container">
         <div className="section-head">
           <span className="annot annot--accent">02 · Components</span>
-          <h2>Thirteen production components. All live — try them.</h2>
+          <h2>Fifteen production components. All live — try them.</h2>
           <p className="lede">
             React 19, zero runtime dependencies, CSS Modules over
             component-level tokens. Every prop below ships in a
