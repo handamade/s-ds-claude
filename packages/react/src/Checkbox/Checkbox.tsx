@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, Ref } from "react";
 import styles from "./checkbox.module.css";
 
 export interface CheckboxProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "placeholder"> {
   /** Label text. */
   children?: React.ReactNode;
   /** Forwarded ref to the underlying `<input type="checkbox">` element. */

@@ -10,6 +10,7 @@ Single-line text input with pixel-true heights (24–48) and an error state. Ins
 | `size` | `24 \| 32 \| 40 \| 48` | 32 | no | Height in px (24 \| 32 \| 40 \| 48). |
 | `error` | `boolean` | false | no | Show error styling. Inside a Field, the Field's error also lights this. |
 | `ref` | `Ref<HTMLInputElement>` | — | no | Forwarded ref to the underlying `<input>` element. |
+| `placeholder` | `string` | — | no | Native placeholder text shown while the field is empty (only on components whose host element supports it). |
 | `className` | `string` | — | no | Additional CSS class name(s) merged onto the component's root element. |
 
 ## Keyboard & assistive tech
