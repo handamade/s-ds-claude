@@ -15,3 +15,6 @@ blob-report
 
 # local Claude Code session config (machine-specific launch.json etc.)
 .claude/
+
+# local-only research notes
+docs/research/2026-07-22-growth-and-selling-model.md
